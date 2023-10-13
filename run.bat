@@ -1,0 +1,1 @@
+docker run -v ".\:/mnt" -it ubuntuwithgo
