@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ground Command and Data Handling</title>
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Ground Command and Data Handling</h1>
+        <p>Displaying spacecraft telemetry, angle, and temperature, sending commands to spacecraft</p>
+    </header>
+
+    <section class="container">
+
+        <div class="readings-container">
+            <h2>Current Ship Readings: </h2>
+            <div class="readings">
+                <label>Co-ordinates:</label>
+                <span id="x-coordinate">X,</span>
+                <span id="y-coordinate"> Y,</span>
+                <span id="z-coordinate"> Z</span>
+            </div>
+
+            <div class="readings">
+                <label>Temperature:</label>
+                <span id="temp">X °C</span>
+            </div>
+
+            <div class="readings">
+                <label>Angle:</label>
+                <span id="angle">X°</span>
+            </div>
+
+            <div class="readings">
+                <label>Zoom:</label>
+                <span id="zoom">X%</span>
+            </div>
+
+        </div>
+
+        <div class="telemetry-input-container">
+            <h2>Co-ordinate Input:</h2>
+            <div class="telemetry-input">
+                <input type="number" placeholder="X">
+                <input type="number" placeholder="Y">
+                <input type="number" placeholder="Z">
+            </div>
+            <button id="sendCommandBtn">Send Command</button>
+        </div>
+
+        <div class="temp-input-container">
+            <h2>Temperature Input:</h2>
+            <div class="temp-input">
+                <input type="number" placeholder="Temp Level">
+            </div>
+            <button id="sendCommandBtn">Send Command</button>
+        </div>
+
+        <div class="angle-input-container">
+            <h2>Angle Input:</h2>
+            <div class="angle-input">
+                <input type="number" placeholder="Angle Degree">
+            </div>
+            <button id="sendCommandBtn">Send Command</button>
+        </div>
+
+        <div class="zoom-input-container">
+            <h2>Zoom Input:</h2>
+            <div class="zoom-input">
+                <input type="number" placeholder="Zoom Level">
+            </div>
+            <button id="sendCommandBtn">Send Command</button>
+        </div>
+
+        <div class="controls">
+            <h2>User Interface Controls</h2>
+            <ul>
+                <li><button id="getTelemetryBtn">Get Current Telemetry</button></li>
+                <li><button id="changeTelemetryBtn">Set Co-ordinates</button></li>
+                <li><button id="setTempBtn">Set Temperature</button></li> 
+                <li><button id="setAngleBtn">Set Angle</button></li> 
+                <li><button id="setZoomBtn">Set Zoom</button></li> 
+                <li><button id="getLogFileBtn">Request Log Files</button></li>
+            </ul>
+        </div>
+
+    </section>
+
+    <script src="scripts/script.js"></script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,103 @@
+body 
+{
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+}
+
+header 
+{
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 1rem;
+    text-align: center;
+}
+
+.container 
+{
+    display: flex;
+    justify-content: space-around;
+    margin: 2rem;
+}
+
+.readings-container, .controls, .telemetry-input-container, .zoom-input-container, .temp-input-container, .angle-input-container 
+{
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.telemetry-input-container button#sendCommandBtn 
+{
+    margin-top: 1rem; 
+}
+
+.telemetry-input 
+{
+    margin-top: 1rem;
+}
+
+h2 
+{
+    color: #343a40;
+    margin-bottom: 1.5rem;
+}
+
+ul 
+{
+    list-style: none;
+    padding: 0;
+}
+
+li 
+{
+    margin-bottom: 1rem;
+}
+
+button 
+{
+    background-color: #343a40;
+    color: #ffffff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover 
+{
+    background-color: #5a6269;
+}
+
+.zoom-input-container button#sendCommandBtn 
+{
+    margin-top: 1rem;
+}
+
+.readings 
+{
+    margin-top: 1.5rem; 
+}
+
+#x-coordinate,
+#y-coordinate,
+#z-coordinate,
+#temp,
+#angle 
+{
+    margin-right: 0.5rem;
+}
+
+.temp-input-container button#sendCommandBtn 
+{
+    margin-top: 1rem; 
+}
+
+.angle-input-container button#sendCommandBtn 
+{
+    margin-top: 1rem; 
+}
