@@ -1,0 +1,16 @@
+curl -X PUT -H "Content-Type: application/json" -d '{
+    "coordinates": { "x": "8", "y": "9", "z": "10" }, 
+    "rotations": { "p": "1", "y": "2", "r": "3" },
+    "fuel": "100",
+    "temp": "50",
+    "status": {
+        "payloadPower": "ON",
+        "dataWaiting": "True",
+        "chargeStatus": "False",
+        "voltage": "15"
+    }
+}' http://localhost:8080/telemetry/1
+
+
+GET
+curl http://localhost:8080/telemetry/1
