@@ -1,1 +1,1 @@
-docker run -v ".\:/mnt" -it ubuntuwithgo
+docker run -v ".\:/mnt" -p "8080:8080" -it ubuntuwithgo
