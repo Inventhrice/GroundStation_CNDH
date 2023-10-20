@@ -1,4 +1,4 @@
-module gcndh
+module Ground_CNDH
 
 go 1.21.1
 
