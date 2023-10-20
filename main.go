@@ -1,6 +1,12 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,11 +38,25 @@ type TelemetryData struct {
 }
 
 var telemetryDB = make(map[string]TelemetryData)
+var listIPs = make(map[int]string)
 
 func main() {
-	r := gin.Default()
+	f, err := os.Open("ip.cfg")
+	if err != nil {
+		fmt.Println("Cannot read ip.cfg.")
+	}
+	defer f.Close()
 
-	r.PUT("/telemetry/:id", func(c *gin.Context) {
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		inData := strings.SplitAfter(scanner.Text(), ",")
+		id, _ := strconv.Atoi(inData[1])
+		listIPs[id] = inData[0]
+	}
+
+	server := gin.Default()
+
+	server.PUT("/telemetry/:id", func(c *gin.Context) {
 		id := c.Param("id")    // Extract the ID from the URL path
 		var data TelemetryData // Create an empty TelemetryData struct
 
@@ -50,7 +70,7 @@ func main() {
 		c.JSON(200, gin.H{"message": "Data saved successfully!"})
 	})
 
-	r.GET("/telemetry/:id", func(c *gin.Context) {
+	server.GET("/telemetry/:id", func(c *gin.Context) {
 		id := c.Param("id") // Extract Id from URL path
 
 		if data, ok := telemetryDB[id]; ok {
@@ -60,5 +80,5 @@ func main() {
 		}
 	})
 
-	r.Run() // By default, it will start the server on http://localhost:8080
+	server.Run() // By default, it will start the server on http://localhost:8080
 }
