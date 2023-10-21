@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -55,6 +56,13 @@ func main() {
 	}
 
 	server := gin.Default()
+	server.LoadHTMLFiles("UI/index.tmpl")
+
+	// Default route
+	server.GET("/", func(c *gin.Context) {
+		fmt.Println(c.FullPath())
+		c.JSON(200, gin.H{"message": "Data saved successfully!"})
+	})
 
 	server.PUT("/telemetry/:id", func(c *gin.Context) {
 		id := c.Param("id")    // Extract the ID from the URL path
@@ -74,7 +82,16 @@ func main() {
 		id := c.Param("id") // Extract Id from URL path
 
 		if data, ok := telemetryDB[id]; ok {
-			c.JSON(200, data)
+			c.HTML(http.StatusOK, "index.tmpl", gin.H{
+				"coordsX": data.Coordinates.X,
+				"coordsY": data.Coordinates.Y,
+				"coordsZ": data.Coordinates.Z,
+				"temp":    data.Temp,
+				"pitch":   data.Rotations.P,
+				"yaw":     data.Rotations.Y,
+				"roll":    data.Rotations.R,
+			})
+			//c.JSON(200, data)
 		} else {
 			c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
 		}
