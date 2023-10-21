@@ -58,10 +58,29 @@ func main() {
 	server := gin.Default()
 	server.LoadHTMLFiles("UI/index.tmpl")
 
-	// Default route - FINISH THIS
-	server.GET("/", func(c *gin.Context) {
-		fmt.Println(c.FullPath())
-		c.JSON(200, gin.H{"message": "Data saved successfully!"})
+	server.GET("/scripts/:name", func(c *gin.Context) {
+		filename := c.Param("name")
+		filename = "./UI/scripts/" + filename
+		_, err := os.Open(filename)
+		if err != nil {
+			c.JSON(404, gin.H{"error": err.Error()})
+		} else {
+			c.Header("Content-Type", "text/javascript")
+			c.File(filename)
+		}
+	})
+
+	server.GET("/styles/:name", func(c *gin.Context) {
+		filename := c.Param("name")
+		filename = "./UI/styles/" + filename
+		_, err := os.Open(filename)
+		if err != nil {
+			fmt.Println((err.Error()))
+			c.JSON(404, gin.H{"error": err.Error()})
+		} else {
+			c.Header("Content-Type", "text/css")
+			c.File(filename)
+		}
 	})
 
 	server.PUT("/telemetry/:id", func(c *gin.Context) {
@@ -91,7 +110,6 @@ func main() {
 				"yaw":     data.Rotations.Y,
 				"roll":    data.Rotations.R,
 			})
-			//c.JSON(200, data)
 		} else {
 			c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
 		}
