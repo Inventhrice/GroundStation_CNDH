@@ -58,7 +58,7 @@ func main() {
 	server := gin.Default()
 	server.LoadHTMLFiles("UI/index.tmpl")
 
-	// Default route
+	// Default route - FINISH THIS
 	server.GET("/", func(c *gin.Context) {
 		fmt.Println(c.FullPath())
 		c.JSON(200, gin.H{"message": "Data saved successfully!"})
