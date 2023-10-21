@@ -102,13 +102,17 @@ func main() {
 
 		if data, ok := telemetryDB[id]; ok {
 			c.HTML(http.StatusOK, "index.tmpl", gin.H{
-				"coordsX": data.Coordinates.X,
-				"coordsY": data.Coordinates.Y,
-				"coordsZ": data.Coordinates.Z,
-				"temp":    data.Temp,
-				"pitch":   data.Rotations.P,
-				"yaw":     data.Rotations.Y,
-				"roll":    data.Rotations.R,
+				"coordsX":      data.Coordinates.X,
+				"coordsY":      data.Coordinates.Y,
+				"coordsZ":      data.Coordinates.Z,
+				"temp":         data.Temp,
+				"pitch":        data.Rotations.P,
+				"yaw":          data.Rotations.Y,
+				"roll":         data.Rotations.R,
+				"PayloadPower": data.Status.PayloadPower,
+				"dataWaiting":  data.Status.DataWaiting,
+				"chargeStatus": data.Status.ChargeStatus,
+				"voltage":      data.Status.Voltage,
 			})
 		} else {
 			c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
