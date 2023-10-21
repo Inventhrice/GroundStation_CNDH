@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -55,6 +56,32 @@ func main() {
 	}
 
 	server := gin.Default()
+	server.LoadHTMLFiles("UI/index.tmpl")
+
+	server.GET("/scripts/:name", func(c *gin.Context) {
+		filename := c.Param("name")
+		filename = "./UI/scripts/" + filename
+		_, err := os.Open(filename)
+		if err != nil {
+			c.JSON(404, gin.H{"error": err.Error()})
+		} else {
+			c.Header("Content-Type", "text/javascript")
+			c.File(filename)
+		}
+	})
+
+	server.GET("/styles/:name", func(c *gin.Context) {
+		filename := c.Param("name")
+		filename = "./UI/styles/" + filename
+		_, err := os.Open(filename)
+		if err != nil {
+			fmt.Println((err.Error()))
+			c.JSON(404, gin.H{"error": err.Error()})
+		} else {
+			c.Header("Content-Type", "text/css")
+			c.File(filename)
+		}
+	})
 
 	server.PUT("/telemetry/:id", func(c *gin.Context) {
 		id := c.Param("id")    // Extract the ID from the URL path
@@ -74,7 +101,19 @@ func main() {
 		id := c.Param("id") // Extract Id from URL path
 
 		if data, ok := telemetryDB[id]; ok {
-			c.JSON(200, data)
+			c.HTML(http.StatusOK, "index.tmpl", gin.H{
+				"coordsX":      data.Coordinates.X,
+				"coordsY":      data.Coordinates.Y,
+				"coordsZ":      data.Coordinates.Z,
+				"temp":         data.Temp,
+				"pitch":        data.Rotations.P,
+				"yaw":          data.Rotations.Y,
+				"roll":         data.Rotations.R,
+				"PayloadPower": data.Status.PayloadPower,
+				"dataWaiting":  data.Status.DataWaiting,
+				"chargeStatus": data.Status.ChargeStatus,
+				"voltage":      data.Status.Voltage,
+			})
 		} else {
 			c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
 		}

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ground Command and Data Handling</title>
-    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="/styles/styles.css">
 </head>
 
 <body>
@@ -20,24 +20,31 @@
             <h2>Current Ship Readings: </h2>
             <div class="readings">
                 <label>Co-ordinates:</label>
-                <span id="x-coordinate">X,</span>
-                <span id="y-coordinate"> Y,</span>
-                <span id="z-coordinate"> Z</span>
+                <span id="x-coordinate">{{ .coordsX }}, </span>
+                <span id="y-coordinate">{{ .coordsY }}, </span>
+                <span id="z-coordinate">{{ .coordsZ }}</span>
             </div>
 
             <div class="readings">
                 <label>Temperature:</label>
-                <span id="temp">X °C</span>
+                <span id="temp">{{ .temp }} °C</span>
             </div>
 
             <div class="readings">
-                <label>Angle:</label>
-                <span id="angle">X°</span>
+                <label>Angle (Pitch/Yaw/Roll):</label>
+                <span id="angle">{{ .pitch }}°, </span>
+                <span id="angle">{{ .yaw }}°, </span>
+                <span id="angle">{{ .roll }}°</span>
             </div>
 
             <div class="readings">
-                <label>Zoom:</label>
-                <span id="zoom">X%</span>
+                <label>Status:</label>
+                <span id="status">Payload: {{ .PayloadPower}}</span>
+                <span id="status">Waiting for Data: {{ .dataWaiting}}</span>
+                <br>
+                <span id="status">Charge Status: {{ .chargeStatus }}</span>
+                <span id="status">Current Voltage: {{ .voltage }}</span>
+
             </div>
 
         </div>
@@ -68,14 +75,6 @@
             <button id="sendCommandBtn">Send Command</button>
         </div>
 
-        <div class="zoom-input-container">
-            <h2>Zoom Input:</h2>
-            <div class="zoom-input">
-                <input type="number" placeholder="Zoom Level">
-            </div>
-            <button id="sendCommandBtn">Send Command</button>
-        </div>
-
         <div class="controls">
             <h2>User Interface Controls</h2>
             <ul>
@@ -83,14 +82,13 @@
                 <li><button id="changeTelemetryBtn">Set Co-ordinates</button></li>
                 <li><button id="setTempBtn">Set Temperature</button></li> 
                 <li><button id="setAngleBtn">Set Angle</button></li> 
-                <li><button id="setZoomBtn">Set Zoom</button></li> 
                 <li><button id="getLogFileBtn">Request Log Files</button></li>
             </ul>
         </div>
 
     </section>
 
-    <script src="scripts/script.js"></script>
+    <script src="/scripts/script.js"></script>
 
 
 </body>
