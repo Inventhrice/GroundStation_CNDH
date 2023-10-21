@@ -87,7 +87,8 @@ button:hover
 #y-coordinate,
 #z-coordinate,
 #temp,
-#angle 
+#angle,
+#status 
 {
     margin-right: 0.5rem;
 }
