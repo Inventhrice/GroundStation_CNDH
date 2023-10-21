@@ -1,0 +1,18 @@
+PUT http://localhost:8080/telemetry/1 HTTP/1.1
+content-type:application/json
+
+{
+    "coordinates": { "x": "8", "y": "9", "z": "10" }, 
+    "rotations": { "p": "1", "y": "2", "r": "3" },
+    "fuel": "100",
+    "temp": "50"
+}
+
+###
+
+GET http://localhost:8080/telemetry/1
+
+###
+
+GET http://localhost:8080/UI/styles/styles.css
+
