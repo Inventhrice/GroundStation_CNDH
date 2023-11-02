@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -46,6 +47,7 @@ func putTelemetry(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+
 	telemetryDB[id] = data // Store the parsed data in our mock database
 	c.JSON(200, data)      // Respond with a 200 status and the stored data
 	c.JSON(200, gin.H{"message": "Data saved successfully!"})
@@ -54,7 +56,19 @@ func getTelemetry(c *gin.Context) {
 	id := c.Query("id") // Extract Id from URL path
 
 	if data, ok := telemetryDB[id]; ok {
-		c.JSON(200, data)
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"coordsX":      data.Coordinates.X,
+			"coordsY":      data.Coordinates.Y,
+			"coordsZ":      data.Coordinates.Z,
+			"temp":         data.Temp,
+			"pitch":        data.Rotations.P,
+			"yaw":          data.Rotations.Y,
+			"roll":         data.Rotations.R,
+			"PayloadPower": data.Status.PayloadPower,
+			"dataWaiting":  data.Status.DataWaiting,
+			"chargeStatus": data.Status.ChargeStatus,
+			"voltage":      data.Status.Voltage,
+		})
 	} else {
 		c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
 	}
