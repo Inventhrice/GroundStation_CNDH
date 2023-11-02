@@ -83,23 +83,24 @@ func main() {
 		}
 	})
 
-	server.PUT("/telemetry/:id", func(c *gin.Context) {
-		id := c.Param("id")    // Extract the ID from the URL path
+	server.PUT("/telemetry/", func(c *gin.Context) {
+		id := c.Query("id")    // Extract the ID from the URL path
 		var data TelemetryData // Create an empty TelemetryData struct
-
+		fmt.Println(id)
 		// Attempt to parse the incoming request's JSON into the "data" struct
 		if err := c.ShouldBindJSON(&data); err != nil {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
+
 		telemetryDB[id] = data // Store the parsed data in our mock database
 		c.JSON(200, data)      // Respond with a 200 status and the stored data
 		c.JSON(200, gin.H{"message": "Data saved successfully!"})
 	})
 
-	server.GET("/telemetry/:id", func(c *gin.Context) {
-		id := c.Param("id") // Extract Id from URL path
-
+	server.GET("/telemetry/", func(c *gin.Context) {
+		id := c.Query("id") // Extract Id from URL path
+		fmt.Println(telemetryDB)
 		if data, ok := telemetryDB[id]; ok {
 			c.HTML(http.StatusOK, "index.tmpl", gin.H{
 				"coordsX":      data.Coordinates.X,
