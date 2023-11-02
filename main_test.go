@@ -15,8 +15,8 @@ func SetupTestServer() *gin.Engine {
 	return server
 }
 
-func TestDemoRoute(t *testing.T) {
-	expected := `{"error": "data not found!"}`
+func Test_GetTelemetry(t *testing.T) {
+	expected := `{"error":"data not found!"}`
 	server := gin.Default()
 	server.GET("/telemetry/0", getTelemetry)
 	req, _ := http.NewRequest("GET", "/telemetry/0", nil)
@@ -25,5 +25,5 @@ func TestDemoRoute(t *testing.T) {
 
 	actual, _ := io.ReadAll(w.Body)
 	assert.Equal(t, expected, string(actual))
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 }
