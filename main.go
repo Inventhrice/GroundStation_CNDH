@@ -37,6 +37,29 @@ type TelemetryData struct {
 	Status      Status      `json:"status"`
 }
 
+func putTelemetry(c *gin.Context) {
+	id := c.Param("id")    // Extract the ID from the URL path
+	var data TelemetryData // Create an empty TelemetryData struct
+
+	// Attempt to parse the incoming request's JSON into the "data" struct
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	telemetryDB[id] = data // Store the parsed data in our mock database
+	c.JSON(200, data)      // Respond with a 200 status and the stored data
+	c.JSON(200, gin.H{"message": "Data saved successfully!"})
+}
+func getTelemetry(c *gin.Context) {
+	id := c.Param("id") // Extract Id from URL path
+
+	if data, ok := telemetryDB[id]; ok {
+		c.JSON(200, data)
+	} else {
+		c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
+	}
+}
+
 var telemetryDB = make(map[string]TelemetryData)
 var listIPs = make(map[int]string)
 
@@ -55,30 +78,7 @@ func main() {
 	}
 
 	server := gin.Default()
-
-	server.PUT("/telemetry/:id", func(c *gin.Context) {
-		id := c.Param("id")    // Extract the ID from the URL path
-		var data TelemetryData // Create an empty TelemetryData struct
-
-		// Attempt to parse the incoming request's JSON into the "data" struct
-		if err := c.ShouldBindJSON(&data); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
-			return
-		}
-		telemetryDB[id] = data // Store the parsed data in our mock database
-		c.JSON(200, data)      // Respond with a 200 status and the stored data
-		c.JSON(200, gin.H{"message": "Data saved successfully!"})
-	})
-
-	server.GET("/telemetry/:id", func(c *gin.Context) {
-		id := c.Param("id") // Extract Id from URL path
-
-		if data, ok := telemetryDB[id]; ok {
-			c.JSON(200, data)
-		} else {
-			c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
-		}
-	})
-
+	server.PUT("/telemetry/:id", putTelemetry)
+	server.GET("/telemetry/:id", getTelemetry)
 	server.Run() // By default, it will start the server on http://localhost:8080
 }

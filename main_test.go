@@ -18,7 +18,7 @@ func SetupTestServer() *gin.Engine {
 func TestDemoRoute(t *testing.T) {
 	expected := `{"error": "data not found!"}`
 	server := gin.Default()
-	server.GET("/telemetry/0")
+	server.GET("/telemetry/0", getTelemetry)
 	req, _ := http.NewRequest("GET", "/telemetry/0", nil)
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
