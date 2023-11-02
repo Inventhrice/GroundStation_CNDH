@@ -60,6 +60,26 @@ func getTelemetry(c *gin.Context) {
 	}
 }
 
+func serveFiles(c *gin.Context, contenttype string, path string) {
+	filename := c.Param("name")
+	filename = path + filename
+	_, err := os.Open(filename)
+	if err != nil {
+		c.JSON(404, gin.H{"error": err.Error()})
+	} else {
+		c.Header("Content-Type", contenttype)
+		c.File(filename)
+	}
+}
+
+func serveScripts(c *gin.Context) {
+	serveFiles(c, "text/javascript", "./UI/scripts/")
+}
+
+func serveCSS(c *gin.Context) {
+	serveFiles(c, "text/css", "./UI/styles/")
+}
+
 var telemetryDB = make(map[string]TelemetryData)
 var listIPs = make(map[int]string)
 
@@ -79,30 +99,8 @@ func main() {
 
 	server := gin.Default()
 	server.LoadHTMLFiles("UI/index.tmpl")
-	server.GET("/scripts/:name", func(c *gin.Context) {
-		filename := c.Param("name")
-		filename = "./UI/scripts/" + filename
-		_, err := os.Open(filename)
-		if err != nil {
-			c.JSON(404, gin.H{"error": err.Error()})
-		} else {
-			c.Header("Content-Type", "text/javascript")
-			c.File(filename)
-		}
-	})
-
-	server.GET("/styles/:name", func(c *gin.Context) {
-		filename := c.Param("name")
-		filename = "./UI/styles/" + filename
-		_, err := os.Open(filename)
-		if err != nil {
-			fmt.Println((err.Error()))
-			c.JSON(404, gin.H{"error": err.Error()})
-		} else {
-			c.Header("Content-Type", "text/css")
-			c.File(filename)
-		}
-	})
+	server.GET("/scripts/:name", serveScripts)
+	server.GET("/styles/:name", serveCSS)
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
 	server.Run() // By default, it will start the server on http://localhost:8080
