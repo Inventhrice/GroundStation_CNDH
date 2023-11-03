@@ -38,6 +38,9 @@ type TelemetryData struct {
 	Status      Status      `json:"status"`
 }
 
+var telemetryDB = make(map[string]TelemetryData)
+var listIPs = make(map[int]string)
+
 func putTelemetry(c *gin.Context) {
 	id := c.Query("id")    // Extract the ID from the URL path
 	var data TelemetryData // Create an empty TelemetryData struct
@@ -94,10 +97,7 @@ func serveCSS(c *gin.Context) {
 	serveFiles(c, "text/css", "./UI/styles/")
 }
 
-var telemetryDB = make(map[string]TelemetryData)
-var listIPs = make(map[int]string)
-
-func main() {
+func readIPCFG() {
 	f, err := os.Open("ip.cfg")
 	if err != nil {
 		fmt.Println("Cannot read ip.cfg.")
@@ -110,7 +110,10 @@ func main() {
 		id, _ := strconv.Atoi(inData[1])
 		listIPs[id] = inData[0]
 	}
+}
 
+func main() {
+	readIPCFG()
 	server := gin.Default()
 	server.LoadHTMLFiles("UI/index.tmpl")
 	server.GET("/scripts/:name", serveScripts)
