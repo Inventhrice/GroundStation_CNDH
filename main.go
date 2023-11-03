@@ -11,32 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Coordinates struct {
-	X string `json:"x"`
-	Y string `json:"y"`
-	Z string `json:"z"`
-}
-
-type Rotations struct {
-	P string `json:"p"`
-	Y string `json:"y"`
-	R string `json:"r"`
-}
-
-type Status struct {
-	PayloadPower string `json:"payloadPower"`
-	DataWaiting  string `json:"dataWaiting"`
-	ChargeStatus string `json:"chargeStatus"`
-	Voltage      string `json:"voltage"`
-}
-
-type TelemetryData struct {
-	Coordinates Coordinates `json:"coordinates"`
-	Rotations   Rotations   `json:"rotations"`
-	Fuel        string      `json:"fuel"`
-	Temp        string      `json:"temp"`
-	Status      Status      `json:"status"`
-}
+var telemetryDB = make(map[string]TelemetryData)
+var listIPs = make(map[int]string)
 
 func putTelemetry(c *gin.Context) {
 	id := c.Query("id")    // Extract the ID from the URL path
@@ -94,10 +70,7 @@ func serveCSS(c *gin.Context) {
 	serveFiles(c, "text/css", "./UI/styles/")
 }
 
-var telemetryDB = make(map[string]TelemetryData)
-var listIPs = make(map[int]string)
-
-func main() {
+func readIPCFG() {
 	f, err := os.Open("ip.cfg")
 	if err != nil {
 		fmt.Println("Cannot read ip.cfg.")
@@ -110,7 +83,10 @@ func main() {
 		id, _ := strconv.Atoi(inData[1])
 		listIPs[id] = inData[0]
 	}
+}
 
+func main() {
+	readIPCFG()
 	server := gin.Default()
 	server.LoadHTMLFiles("UI/index.tmpl")
 	server.GET("/scripts/:name", serveScripts)
