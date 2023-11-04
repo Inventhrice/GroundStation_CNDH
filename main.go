@@ -71,19 +71,17 @@ func serveCSS(c *gin.Context) {
 }
 
 func status(c *gin.Context) {
-	req, _ := http.NewRequest(http.MethodGet, "http://localhost:8080/status", nil)
+	uri := fmt.Sprintf("http://%s:8080/test", listIPs[5])
+	fmt.Println(uri)
+	req, _ := http.NewRequest(http.MethodGet, uri, nil)
 	res, _ := http.DefaultClient.Do(req)
-	c.JSON(res.StatusCode, gin.H{
-		"message": "check",
-	})
+	//insert code for JSON here
+	c.JSON(res.StatusCode)
 }
 
 func test(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"response": "hey!"})
 
-	fmt.Println(res)
-	c.JSON(200, gin.H{
-		"message": "pong",
-	})
 }
 
 func readIPCFG() {
