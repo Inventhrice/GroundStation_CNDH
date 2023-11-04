@@ -70,6 +70,22 @@ func serveCSS(c *gin.Context) {
 	serveFiles(c, "text/css", "./UI/styles/")
 }
 
+func status(c *gin.Context) {
+	req, _ := http.NewRequest(http.MethodGet, "http://localhost:8080/status", nil)
+	res, _ := http.DefaultClient.Do(req)
+	c.JSON(res.StatusCode, gin.H{
+		"message": "check",
+	})
+}
+
+func test(c *gin.Context) {
+
+	fmt.Println(res)
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
+}
+
 func readIPCFG() {
 	f, err := os.Open("ip.cfg")
 	if err != nil {
@@ -93,5 +109,8 @@ func main() {
 	server.GET("/styles/:name", serveCSS)
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
+	server.GET("/status", status)
+	server.GET("/test", test)
 	server.Run() // By default, it will start the server on http://localhost:8080
+
 }
