@@ -72,18 +72,22 @@ func serveCSS(c *gin.Context) {
 }
 
 func status(c *gin.Context) {
-	uri := fmt.Sprintf("http://%s:8080/test", listIPs[5])
-	//I'll have to implement all the error handling
+	uri := fmt.Sprintf("http://%s:8080/status", listIPs[4])
+
+	//Error handling not implemented on purpose because
+	// "An error is returned if there were too many redirects or if there was an HTTP protocol error.
+	// A non-2xx response doesn't cause an error."
 	res, _ := http.Get(uri)
 	defer res.Body.Close()
+
+	// make a 2D array of an interface and string
 	var body map[string]interface{}
+	//json decoder writes to body by address
 	json.NewDecoder(res.Body).Decode(&body)
+
+	//returns the status code and the body in a raw format
 	c.JSON(res.StatusCode, body)
 
-}
-
-func test(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"response": "hey!"})
 }
 
 func readIPCFG() {
@@ -110,7 +114,6 @@ func main() {
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
 	server.GET("/status", status)
-	server.GET("/test", test)
 	server.Run() // By default, it will start the server on http://localhost:8080
 
 }
