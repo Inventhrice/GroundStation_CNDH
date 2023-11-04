@@ -95,7 +95,7 @@ func readIPCFG() {
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		inData := strings.SplitAfter(scanner.Text(), ",")
+		inData := strings.Split(scanner.Text(), ",")
 		id, _ := strconv.Atoi(inData[1])
 		listIPs[id] = inData[0]
 	}
