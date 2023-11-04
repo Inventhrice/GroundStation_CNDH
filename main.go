@@ -73,18 +73,15 @@ func serveCSS(c *gin.Context) {
 
 func status(c *gin.Context) {
 	uri := fmt.Sprintf("http://%s:8080/test", listIPs[5])
-	fmt.Println(uri)
 	//I'll have to implement all the error handling
 	req, _ := http.NewRequest(http.MethodGet, uri, nil)
 	res, _ := http.DefaultClient.Do(req)
 	resBody, _ := io.ReadAll(res.Body)
-	fmt.Println(res)
-	c.JSON(res.StatusCode, resBody)
+	c.JSON(res.StatusCode, gin.H{"JSON": resBody})
 }
 
 func test(c *gin.Context) {
-	c.IndentedJSON(http.StatusNotFound, gin.H{"response": "hey!"})
-
+	c.JSON(http.StatusOK, gin.H{"response": "hey!"})
 }
 
 func readIPCFG() {
