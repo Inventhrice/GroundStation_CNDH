@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -74,10 +74,12 @@ func serveCSS(c *gin.Context) {
 func status(c *gin.Context) {
 	uri := fmt.Sprintf("http://%s:8080/test", listIPs[5])
 	//I'll have to implement all the error handling
-	req, _ := http.NewRequest(http.MethodGet, uri, nil)
-	res, _ := http.DefaultClient.Do(req)
-	resBody, _ := io.ReadAll(res.Body)
-	c.JSON(res.StatusCode, gin.H{"JSON": resBody})
+	res, _ := http.Get(uri)
+	defer res.Body.Close()
+	var body map[string]interface{}
+	json.NewDecoder(res.Body).Decode(&body)
+	c.JSON(res.StatusCode, body)
+
 }
 
 func test(c *gin.Context) {
