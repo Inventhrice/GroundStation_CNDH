@@ -78,11 +78,12 @@ func status(c *gin.Context) {
 	req, _ := http.NewRequest(http.MethodGet, uri, nil)
 	res, _ := http.DefaultClient.Do(req)
 	resBody, _ := io.ReadAll(res.Body)
+	fmt.Println(res)
 	c.JSON(res.StatusCode, resBody)
 }
 
 func test(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"response": "hey!"})
+	c.IndentedJSON(http.StatusNotFound, gin.H{"response": "hey!"})
 
 }
 
