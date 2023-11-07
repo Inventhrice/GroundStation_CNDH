@@ -58,9 +58,9 @@ func Test02_GetTelemetry_WithData(t *testing.T) {
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	actual, _ := io.ReadAll(w.Body)
-    if err := os.WriteFile(filename, []byte(string(actual)), 0666); err != nil {
-     fmt.Println(err)
-    }
+    //if err := os.WriteFile(filename, []byte(string(actual)), 0666); err != nil {
+    // fmt.Println(err)
+    //}
 	assert.Equal(t, string(expectedBody), string(actual))
 	assert.Equal(t, expectedCode, w.Code)
 }
