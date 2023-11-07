@@ -28,6 +28,7 @@ func putTelemetry(c *gin.Context) {
 	c.JSON(200, data)      // Respond with a 200 status and the stored data
 	c.JSON(200, gin.H{"message": "Data saved successfully!"})
 }
+
 func getTelemetry(c *gin.Context) {
 	id := c.Query("id") // Extract Id from URL path
 
