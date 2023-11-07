@@ -12,35 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var telemetryData TelemetryData
+var telemetryDB = make(map[string]TelemetryData)
 var listIPs = make(map[int]string)
-var gotData = false // Updates upon succesful loading of JSON data from putTelemetry route for check in getTelemetry route
-
-func getRoot(c *gin.Context) { // Root route reads from json file and puts the data into the html (tmpl) file for display
-	err := readJSONFromFile()
-	if err != nil {
-		fmt.Println("Error: ", err)
-		return
-	}
-
-	data := telemetryData
-	c.HTML(http.StatusOK, "index.tmpl", gin.H{
-		"coordsX":      data.Coordinates.X,
-		"coordsY":      data.Coordinates.Y,
-		"coordsZ":      data.Coordinates.Z,
-		"temp":         data.Temp,
-		"pitch":        data.Rotations.P,
-		"yaw":          data.Rotations.Y,
-		"roll":         data.Rotations.R,
-		"PayloadPower": data.Status.PayloadPower,
-		"dataWaiting":  data.Status.DataWaiting,
-		"chargeStatus": data.Status.ChargeStatus,
-		"voltage":      data.Status.Voltage,
-	})
-}
 
 func putTelemetry(c *gin.Context) {
-	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
+	id := c.Query("id")    // Extract the ID from the URL path
 	var data TelemetryData // Create an empty TelemetryData struct
 
 	// Attempt to parse the incoming request's JSON into the "data" struct
@@ -49,22 +25,14 @@ func putTelemetry(c *gin.Context) {
 		return
 	}
 
-	telemetryData = data // Store the parsed data in our mock database
-	gotData = true
-	c.JSON(200, data) // Respond with a 200 status and the stored data
-
-	writeErr := writeJSONToFile() // Write new data to JSON
-	if writeErr != nil {
-		fmt.Print("Error", writeErr)
-		c.JSON(400, gin.H{"error": writeErr.Error()})
-	} else {
-		c.JSON(200, gin.H{"message": "Data saved successfully!"})
-	}
+	telemetryDB[id] = data // Store the parsed data in our mock database
+	c.JSON(200, data)      // Respond with a 200 status and the stored data
+	c.JSON(200, gin.H{"message": "Data saved successfully!"})
 }
-
 func getTelemetry(c *gin.Context) {
-	//	id := c.Query("id")
-	if data := telemetryData; gotData {
+	id := c.Query("id") // Extract Id from URL path
+
+	if data, ok := telemetryDB[id]; ok {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"coordsX":      data.Coordinates.X,
 			"coordsY":      data.Coordinates.Y,
@@ -78,59 +46,9 @@ func getTelemetry(c *gin.Context) {
 			"chargeStatus": data.Status.ChargeStatus,
 			"voltage":      data.Status.Voltage,
 		})
-
-		err := writeJSONToFile()
-		if err != nil {
-			fmt.Println("Error", err)
-		}
-
 	} else {
 		c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
 	}
-	gotData = false // Reset gotData so we can check again on next request
-}
-
-func readJSONFromFile() error {
-	filename := "telemetry.json"
-
-	file, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// Decode JSON data from the file into the telemetryData variable
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&telemetryData)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func writeJSONToFile() error {
-	filename := "telemetry.json"
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// Convert TelemetryData to JSON
-	dataJSON, err := json.MarshalIndent(telemetryData, "", "    ")
-	if err != nil {
-		return err
-	}
-
-	// Write JSON data to the file
-	_, err = file.Write(dataJSON)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("JSON data written to", filename)
-	return nil
 }
 
 func serveFiles(c *gin.Context, contenttype string, path string) {
@@ -191,7 +109,6 @@ func main() {
 	readIPCFG()
 	server := gin.Default()
 	server.LoadHTMLFiles("UI/index.tmpl")
-	server.GET("/", getRoot)
 	server.GET("/scripts/:name", serveScripts)
 	server.GET("/styles/:name", serveCSS)
 	server.PUT("/telemetry/", putTelemetry)
