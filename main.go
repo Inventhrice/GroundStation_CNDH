@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,11 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var telemetryDB = make(map[string]TelemetryData)
+var telemetryData TelemetryData
 var listIPs = make(map[int]string)
+var gotData = false // Updates upon succesful loading of JSON data, either from file or from putTelemetry route
 
 func putTelemetry(c *gin.Context) {
-	id := c.Query("id")    // Extract the ID from the URL path
+	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
 
 	// Attempt to parse the incoming request's JSON into the "data" struct
@@ -24,14 +26,15 @@ func putTelemetry(c *gin.Context) {
 		return
 	}
 
-	telemetryDB[id] = data // Store the parsed data in our mock database
-	c.JSON(200, data)      // Respond with a 200 status and the stored data
+	telemetryData = data // Store the parsed data in our mock database
+	gotData = true
+	c.JSON(200, data) // Respond with a 200 status and the stored data
 	c.JSON(200, gin.H{"message": "Data saved successfully!"})
 }
-func getTelemetry(c *gin.Context) {
-	id := c.Query("id") // Extract Id from URL path
 
-	if data, ok := telemetryDB[id]; ok {
+func getTelemetry(c *gin.Context) {
+	//	id := c.Query("id")
+	if data := telemetryData; gotData {
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"coordsX":      data.Coordinates.X,
 			"coordsY":      data.Coordinates.Y,
@@ -45,9 +48,40 @@ func getTelemetry(c *gin.Context) {
 			"chargeStatus": data.Status.ChargeStatus,
 			"voltage":      data.Status.Voltage,
 		})
+
+		err := writeJSONToFile()
+		if err != nil {
+			fmt.Println("Error", err)
+		}
+
 	} else {
 		c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
 	}
+	gotData = false // Reset gotData so we can check again on next request
+}
+
+func writeJSONToFile() error {
+	filename := "telemetry.json"
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Convert TelemetryData to JSON
+	dataJSON, err := json.MarshalIndent(telemetryData, "", "    ")
+	if err != nil {
+		return err
+	}
+
+	// Write JSON data to the file
+	_, err = file.Write(dataJSON)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("JSON data written to", filename)
+	return nil
 }
 
 func serveFiles(c *gin.Context, contenttype string, path string) {
