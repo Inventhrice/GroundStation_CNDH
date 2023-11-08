@@ -12,34 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var telemetryData TelemetryData
 var listIPs = make(map[int]string)
-var gotData = false // Updates upon succesful loading of JSON data from putTelemetry route for check in getTelemetry route
 
 func getRoot(c *gin.Context) { // Root route reads from json file and puts the data into the html (tmpl) file for display
-
-	data, err := readJSONFromFile()
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.HTML(http.StatusOK, "index.tmpl", gin.H{
-		"coordsX":      data.Coordinates.X,
-		"coordsY":      data.Coordinates.Y,
-		"coordsZ":      data.Coordinates.Z,
-		"temp":         data.Temp,
-		"pitch":        data.Rotations.P,
-		"yaw":          data.Rotations.Y,
-		"roll":         data.Rotations.R,
-		"PayloadPower": data.Status.PayloadPower,
-		"dataWaiting":  data.Status.DataWaiting,
-		"chargeStatus": data.Status.ChargeStatus,
-		"voltage":      data.Status.Voltage,
-	})
-
-	telemetryData = data
-	gotData = true
+	c.JSON(200, gin.H{"message": "Server is running"})
 }
 
 func putTelemetry(c *gin.Context) {
@@ -52,11 +28,7 @@ func putTelemetry(c *gin.Context) {
 		return
 	}
 
-	telemetryData = data // Store the parsed data in our mock database
-	gotData = true
-	c.JSON(200, data) // Respond with a 200 status and the stored data
-
-	writeErr := writeJSONToFile() // Write new data to JSON
+	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
 		c.JSON(400, gin.H{"error": writeErr.Error()})
 	} else {
@@ -66,29 +38,26 @@ func putTelemetry(c *gin.Context) {
 
 func getTelemetry(c *gin.Context) {
 	//	id := c.Query("id")
-	if data := telemetryData; gotData {
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"coordsX":      data.Coordinates.X,
-			"coordsY":      data.Coordinates.Y,
-			"coordsZ":      data.Coordinates.Z,
-			"temp":         data.Temp,
-			"pitch":        data.Rotations.P,
-			"yaw":          data.Rotations.Y,
-			"roll":         data.Rotations.R,
-			"PayloadPower": data.Status.PayloadPower,
-			"dataWaiting":  data.Status.DataWaiting,
-			"chargeStatus": data.Status.ChargeStatus,
-			"voltage":      data.Status.Voltage,
-		})
 
-		err := writeJSONToFile()
-		if err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
-		}
-
-	} else {
-		c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
+	data, err := readJSONFromFile() // Load json data into data variable
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
 	}
+
+	c.HTML(http.StatusOK, "index.tmpl", gin.H{ // Write json data to html page
+		"coordsX":      data.Coordinates.X,
+		"coordsY":      data.Coordinates.Y,
+		"coordsZ":      data.Coordinates.Z,
+		"temp":         data.Temp,
+		"pitch":        data.Rotations.P,
+		"yaw":          data.Rotations.Y,
+		"roll":         data.Rotations.R,
+		"PayloadPower": data.Status.PayloadPower,
+		"dataWaiting":  data.Status.DataWaiting,
+		"chargeStatus": data.Status.ChargeStatus,
+		"voltage":      data.Status.Voltage,
+	})
 }
 
 func readJSONFromFile() (TelemetryData, error) {
@@ -111,7 +80,7 @@ func readJSONFromFile() (TelemetryData, error) {
 	return data, nil
 }
 
-func writeJSONToFile() error {
+func writeJSONToFile(data TelemetryData) error {
 	filename := "telemetry.json"
 	file, err := os.Create(filename)
 	if err != nil {
@@ -120,7 +89,7 @@ func writeJSONToFile() error {
 	defer file.Close()
 
 	// Convert TelemetryData to JSON
-	dataJSON, err := json.MarshalIndent(telemetryData, "", "    ")
+	dataJSON, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		return err
 	}
