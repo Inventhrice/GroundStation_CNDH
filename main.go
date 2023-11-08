@@ -37,22 +37,54 @@ func receive(c *gin.Context) {
 
 	switch destination {
 	case "GroundPayloadOps":
-		if verb == "GET" {// Handle GET request to "ip+route" for GroundPayloadOps
+		if verb == "GET" { // Handle GET request for GroundPayloadOps
 			resp, err := http.Get("http://" + ip + route)
 			if err != nil {
 				c.JSON(500, gin.H{"error": "Failed to make GET request"})
 				return
 			}
-			defer resp.Body.Close()
-
+			defer resp.Body.Close() // cleanup and release HTTP request 
 
 			c.JSON(200, gin.H{"message": "GET request processed successfully"})
-		} else if verb == "PUT" {// Handle PUT request for GroundPayloadOps
-		
+		} else if verb == "PUT" { // Handle PUT request for GroundPayloadOps
+
 			c.JSON(200, gin.H{"message": "PUT request processed successfully"})
 		} else {
 			c.JSON(400, gin.H{"error": "Unsupported HTTP verb"})
 		}
+	case "UplinkDownlink":
+		if verb == "GET" { // Handle GET request for UplinkDownlink
+			resp, err := http.Get("http://" + ip + route)
+			if err != nil {
+				c.JSON(500, gin.H{"error": "Failed to make GET request"})
+				return
+			}
+			defer resp.Body.Close() // cleanup and release HTTP request 
+
+			c.JSON(200, gin.H{"message": "GET request processed successfully"})
+		} else if verb == "PUT" {
+
+			c.JSON(200, gin.H{"message": "PUT request processed successfully"})
+		} else {
+			c.JSON(400, gin.H{"error": "Unsupported HTTP verb"})
+		}
+
+	default://destination not in our scope so we Forward the request
+		resp, err := http.NewRequest(verb, "http://"+ip+route, nil)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Failed to create the request"})
+			return
+		}
+	
+		client := &http.Client{}
+		resp, err = client.Do(resp)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Failed to make the request"})
+			return
+		}
+		defer resp.Body.Close() // cleanup and release HTTP request 
+	
+		c.JSON(200, gin.H{"message": "Request processed successfully"})
 
 }
 
