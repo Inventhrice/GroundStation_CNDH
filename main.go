@@ -17,13 +17,13 @@ var listIPs = make(map[int]string)
 var gotData = false // Updates upon succesful loading of JSON data from putTelemetry route for check in getTelemetry route
 
 func getRoot(c *gin.Context) { // Root route reads from json file and puts the data into the html (tmpl) file for display
-	err := readJSONFromFile()
+
+	data, err := readJSONFromFile()
 	if err != nil {
-		fmt.Println("Error: ", err)
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	data := telemetryData
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
 		"coordsX":      data.Coordinates.X,
 		"coordsY":      data.Coordinates.Y,
@@ -37,6 +37,9 @@ func getRoot(c *gin.Context) { // Root route reads from json file and puts the d
 		"chargeStatus": data.Status.ChargeStatus,
 		"voltage":      data.Status.Voltage,
 	})
+
+	telemetryData = data
+	gotData = true
 }
 
 func putTelemetry(c *gin.Context) {
@@ -55,7 +58,6 @@ func putTelemetry(c *gin.Context) {
 
 	writeErr := writeJSONToFile() // Write new data to JSON
 	if writeErr != nil {
-		fmt.Print("Error", writeErr)
 		c.JSON(400, gin.H{"error": writeErr.Error()})
 	} else {
 		c.JSON(200, gin.H{"message": "Data saved successfully!"})
@@ -81,32 +83,32 @@ func getTelemetry(c *gin.Context) {
 
 		err := writeJSONToFile()
 		if err != nil {
-			fmt.Println("Error", err)
+			c.JSON(400, gin.H{"error": err.Error()})
 		}
 
 	} else {
 		c.JSON(404, gin.H{"error": "data not found!"}) //return 404 if no data
 	}
-	gotData = false // Reset gotData so we can check again on next request
 }
 
-func readJSONFromFile() error {
+func readJSONFromFile() (TelemetryData, error) {
+	var data TelemetryData
 	filename := "telemetry.json"
 
 	file, err := os.Open(filename)
 	if err != nil {
-		return err
+		return data, err
 	}
 	defer file.Close()
 
 	// Decode JSON data from the file into the telemetryData variable
 	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&telemetryData)
+	err = decoder.Decode(&data)
 	if err != nil {
-		return err
+		return data, err
 	}
 
-	return nil
+	return data, nil
 }
 
 func writeJSONToFile() error {
@@ -129,7 +131,6 @@ func writeJSONToFile() error {
 		return err
 	}
 
-	fmt.Println("JSON data written to", filename)
 	return nil
 }
 
