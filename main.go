@@ -44,14 +44,9 @@ func receive(c *gin.Context) {
 				return
 			}
 			defer resp.Body.Close()
-	
-			// Handle the response accordingly
-	
 			c.JSON(200, gin.H{"message": "GET request processed successfully"})
+
 		} else if verb == "PUT" {
-			// Handle PUT request for GroundPayloadOps
-			// Implement your logic here
-	
 			c.JSON(200, gin.H{"message": "PUT request processed successfully"})
 		} else {
 			c.JSON(400, gin.H{"error": "Unsupported HTTP verb"})
