@@ -15,6 +15,14 @@ import (
 var telemetryDB = make(map[string]TelemetryData)
 var listIPs = make(map[int]string)
 
+// Request represents the JSON data structure for incoming requests.
+type Request struct {
+	Destination string `json:"destination"`
+	Verb        string `json:"verb"`
+	IP          string `json:"ip"`
+	Route       string `json:"route"`
+}
+
 func putTelemetry(c *gin.Context) {
 	id := c.Query("id")    // Extract the ID from the URL path
 	var data TelemetryData // Create an empty TelemetryData struct
@@ -114,6 +122,7 @@ func main() {
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
 	server.GET("/status", status)
+	server.GET("/recieve")
 	server.Run() // By default, it will start the server on http://localhost:8080
 
 }
