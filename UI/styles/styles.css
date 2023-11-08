@@ -21,7 +21,7 @@ header
     margin: 2rem;
 }
 
-.readings-container, .controls, .telemetry-input-container, .zoom-input-container, .temp-input-container, .angle-input-container 
+.readings-container, .controls, .telemetry-input-container, .zoom-input-container, .temp-input-container, .angle-input-container, .coordinate-input-container 
 {
     background-color: #ffffff;
     padding: 2rem;
@@ -73,11 +73,6 @@ button:hover
     background-color: #5a6269;
 }
 
-.zoom-input-container button#sendCommandBtn 
-{
-    margin-top: 1rem;
-}
-
 .readings 
 {
     margin-top: 1.5rem; 
@@ -93,7 +88,7 @@ button:hover
     margin-right: 0.5rem;
 }
 
-.temp-input-container button#sendCommandBtn 
+.coordinate-input-container button#sendCommandBtn 
 {
     margin-top: 1rem; 
 }
