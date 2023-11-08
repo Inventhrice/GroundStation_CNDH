@@ -35,6 +35,25 @@ func receive(c *gin.Context) {
 	ip := request.IP
 	route := request.Route
 
+	switch destination {
+	case "GroundPayloadOps":
+		if verb == "GET" {// Handle GET request to "ip+route" for GroundPayloadOps
+			resp, err := http.Get("http://" + ip + route)
+			if err != nil {
+				c.JSON(500, gin.H{"error": "Failed to make GET request"})
+				return
+			}
+			defer resp.Body.Close()
+
+
+			c.JSON(200, gin.H{"message": "GET request processed successfully"})
+		} else if verb == "PUT" {// Handle PUT request for GroundPayloadOps
+		
+			c.JSON(200, gin.H{"message": "PUT request processed successfully"})
+		} else {
+			c.JSON(400, gin.H{"error": "Unsupported HTTP verb"})
+		}
+
 }
 
 func putTelemetry(c *gin.Context) {
