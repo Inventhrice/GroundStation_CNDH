@@ -187,7 +187,7 @@ func main() {
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
 	server.GET("/status", status)
-	server.GET("/recieve")
+	server.GET("/receive", receive)
 	server.Run() // By default, it will start the server on http://localhost:8080
 
 }
