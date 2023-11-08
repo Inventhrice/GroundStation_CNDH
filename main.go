@@ -23,6 +23,16 @@ type Request struct {
 	Route       string `json:"route"`
 }
 
+func receive(c *gin.Context) {
+	jsonData := c.Query("data") // data parsed from query parameter
+	var request Request         // the struct we made to parse the JSON
+	if err := json.Unmarshal([]byte(jsonData), &request); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid JSON data"}) //cannot parse
+		return
+	}
+
+}
+
 func putTelemetry(c *gin.Context) {
 	id := c.Query("id")    // Extract the ID from the URL path
 	var data TelemetryData // Create an empty TelemetryData struct
