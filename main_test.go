@@ -64,3 +64,14 @@ func Test02_GetTelemetry_WithData(t *testing.T) {
 	assert.Equal(t, string(expectedBody), string(actual))
 	assert.Equal(t, expectedCode, w.Code)
 }
+
+func Test03_PutTelemetry_InvalidInput(t *testing.T) {
+    data := "vasdvasdvasdafsadvasdv"
+    expectedCode := http.StatusBadRequest
+    server := gin.Default()
+    server.PUT("/telemetry/", putTelemetry)
+    req, _ := http.NewRequest("PUT", "/telemetry/?id=0,data="+data, nil)
+    w := httptest.NewRecorder()
+    server.ServeHTTP(w, req)
+    assert.Equal(t, expectedCode, w.Code)
+}
