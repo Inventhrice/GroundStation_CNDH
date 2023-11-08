@@ -30,6 +30,10 @@ func receive(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid JSON data"}) //cannot parse
 		return
 	}
+	destination := request.Destination
+	verb := request.Verb
+	ip := request.IP
+	route := request.Route
 
 }
 
