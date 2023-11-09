@@ -75,13 +75,21 @@ func Test05_Styles_Invalid(t *testing.T) {
 
 // }
 
-// func Test07_Root(t *testing.T){
-// 	expected := http.StatusOK
-// 	expectedMsg := "Server is running"
+func Test07_Root(t *testing.T) {
+	expected := http.StatusOK
+	expectedMsg := "{\"message\":\"Server is running\"}"
 
-// 	server := gin.Default()
-// 	server.GET("/", getRoot)
-// }
+	server := gin.Default()
+	server.GET("/", getRoot)
+
+	req, _ := http.NewRequest("GET", "/", nil)
+	w := httptest.NewRecorder()
+
+	server.ServeHTTP(w, req)
+
+	assert.Equal(t, expected, w.Code)
+	assert.Equal(t, expectedMsg, w.Body.String())
+}
 
 // func test08_readIPCFG(t *testing.T){
 
