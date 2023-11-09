@@ -7,18 +7,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	//"fmt"
 )
 
 func SetupTestServer() *gin.Engine {
-	server := gin.Default()
-	return server
+	gin.SetMode(gin.ReleaseMode)
+	return gin.Default()
 }
 
 func Test04_Scripts_Valid(t *testing.T) {
 	expected := "testTextfor js file"
 
-	server := gin.Default()
+	server := SetupTestServer()
 	server.GET("/scripts/:name", serveScripts)
 
 	req, _ := http.NewRequest("GET", "/scripts/test.js", nil)
@@ -32,7 +31,7 @@ func Test04_Scripts_Valid(t *testing.T) {
 func Test05_Styles_Valid(t *testing.T) {
 	expected := "testTextfor css file"
 
-	server := gin.Default()
+	server := SetupTestServer()
 	server.GET("/styles/:name", serveCSS)
 
 	req, _ := http.NewRequest("GET", "/styles/test.css", nil)
@@ -46,7 +45,7 @@ func Test05_Styles_Valid(t *testing.T) {
 func Test04_Scripts_Invalid(t *testing.T) {
 	expected := "{\"error\":\"open ./UI/scripts/NOTFOUND.js: The system cannot find the file specified.\"}"
 
-	server := gin.Default()
+	server := SetupTestServer()
 	server.GET("/scripts/:name", serveScripts)
 
 	req, _ := http.NewRequest("GET", "/scripts/NOTFOUND.js", nil)
@@ -60,7 +59,7 @@ func Test04_Scripts_Invalid(t *testing.T) {
 func Test05_Styles_Invalid(t *testing.T) {
 	expected := "{\"error\":\"open ./UI/styles/NOTFOUND.css: The system cannot find the file specified.\"}"
 
-	server := gin.Default()
+	server := SetupTestServer()
 	server.GET("/styles/:name", serveCSS)
 
 	req, _ := http.NewRequest("GET", "/styles/NOTFOUND.css", nil)
@@ -79,7 +78,7 @@ func Test07_Root(t *testing.T) {
 	expected := http.StatusOK
 	expectedMsg := "{\"message\":\"Server is running\"}"
 
-	server := gin.Default()
+	server := SetupTestServer()
 	server.GET("/", getRoot)
 
 	req, _ := http.NewRequest("GET", "/", nil)
