@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	//"fmt"
 )
 
 func SetupTestServer() *gin.Engine {
@@ -14,36 +15,64 @@ func SetupTestServer() *gin.Engine {
 	return server
 }
 
-func Test04_Scripts(t *testing.T){
+func Test04_Scripts_Valid(t *testing.T) {
 	expected := "testTextfor js file"
-	
+
 	server := gin.Default()
 	server.GET("/scripts/:name", serveScripts)
 
 	req, _ := http.NewRequest("GET", "/scripts/test.js", nil)
-    w := httptest.NewRecorder()
+	w := httptest.NewRecorder()
 
-    server.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 
-    assert.Equal(t, expected, w.Body.String())
+	assert.Equal(t, expected, w.Body.String())
 }
 
-func Test05_Styles(t *testing.T){
+func Test05_Styles_Valid(t *testing.T) {
 	expected := "testTextfor css file"
 
 	server := gin.Default()
 	server.GET("/styles/:name", serveCSS)
 
 	req, _ := http.NewRequest("GET", "/styles/test.css", nil)
-    w := httptest.NewRecorder()
+	w := httptest.NewRecorder()
 
-    server.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 
-    assert.Equal(t, expected, w.Body.String())
+	assert.Equal(t, expected, w.Body.String())
+}
+
+func Test04_Scripts_Invalid(t *testing.T) {
+	expected := "{\"error\":\"open ./UI/scripts/NOTFOUND.js: The system cannot find the file specified.\"}"
+
+	server := gin.Default()
+	server.GET("/scripts/:name", serveScripts)
+
+	req, _ := http.NewRequest("GET", "/scripts/NOTFOUND.js", nil)
+	w := httptest.NewRecorder()
+
+	server.ServeHTTP(w, req)
+
+	assert.Equal(t, expected, w.Body.String())
+}
+
+func Test05_Styles_Invalid(t *testing.T) {
+	expected := "{\"error\":\"open ./UI/styles/NOTFOUND.css: The system cannot find the file specified.\"}"
+
+	server := gin.Default()
+	server.GET("/styles/:name", serveCSS)
+
+	req, _ := http.NewRequest("GET", "/styles/NOTFOUND.css", nil)
+	w := httptest.NewRecorder()
+
+	server.ServeHTTP(w, req)
+
+	assert.Equal(t, expected, w.Body.String())
 }
 
 // func Test06_HTML(t *testing.T){
-	
+
 // }
 
 // func Test07_Root(t *testing.T){
