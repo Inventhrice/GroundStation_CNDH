@@ -30,58 +30,56 @@ func Test01_PutTelemetry_ValidInput(t *testing.T) {
     if err != nil {
         t.Fatal(err)
     }
-    // Convert JSON encoded byte array into Reader
     body := bytes.NewReader(jsonData)
-    // Initialize test server
+
 	server := SetupTestServer()
-    // Make HTTP request
+
 	req, _ := http.NewRequest("PUT", "/telemetry/", body)
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	actual, _ := io.ReadAll(w.Body)
     expectedBody := "{\"message\":\"Data saved successfully!\"}" 
 	expectedCode := http.StatusOK
-    // Get actual json data
+
     actualFilename := "telemetry.json"
     actualJson, err := os.ReadFile(actualFilename)
     if err != nil {
         t.Fatal(err)
     }
-    // Get expected json data
 	expectedFilename := "test/test1.json"
 	expectedJson, err := os.ReadFile(expectedFilename)
 	if err != nil {
         t.Fatal(err)
 	}
+
 	assert.Equal(t, string(expectedBody), string(actual))
 	assert.Equal(t, expectedCode, w.Code)
     assert.Equal(t, expectedJson, actualJson)
 }
 
 func Test02_PutTelemetry_InvalidInput(t *testing.T) {
-    // Initialize test server
     server := SetupTestServer()
-    // Make HTTP request
+
     req, _ := http.NewRequest("PUT", "/telemetry/", nil)
     w := httptest.NewRecorder()
     server.ServeHTTP(w, req)
     actual, _ := io.ReadAll(w.Body)
-    // Set response expected code and body
+
     expectedCode := http.StatusBadRequest
     expectedBody := "{\"error\":\"invalid request\"}"
+
     assert.Equal(t, expectedBody, string(actual))
     assert.Equal(t, expectedCode, w.Code)
 }
 
 func Test03_GetTelemetry_Valid(t *testing.T) {
-    // Initialize test server
     server := SetupTestServer()
-    // Make HTTP request
+
     req, _ := http.NewRequest("GET", "/telemetry/", nil)
     w := httptest.NewRecorder()
     server.ServeHTTP(w, req)
     actual, _ := io.ReadAll(w.Body)
-    // Save index.tmpl
+
     filename := "test/test3.tmpl"
     //if err := os.WriteFile(filename, []byte(string(actual)), 0666); err != nil {
     //    t.Fatal(err)
@@ -110,7 +108,7 @@ func Test04_Scripts_Valid(t *testing.T) {
 
 func Test04_Scripts_Invalid(t *testing.T) {
 	expected := "{\"error\":\"open ./UI/scripts/NOTFOUND.js: no such file or directory\"}"
-
+    expectedCode := http.StatusNotFound
 	server := SetupTestServer()
 
 	req, _ := http.NewRequest("GET", "/scripts/NOTFOUND.js", nil)
@@ -119,6 +117,7 @@ func Test04_Scripts_Invalid(t *testing.T) {
 	server.ServeHTTP(w, req)
 
 	assert.Equal(t, expected, w.Body.String())
+    assert.Equal(t, expectedCode, w.Code)
 }
 
 func Test05_Styles_Valid(t *testing.T) {
@@ -136,15 +135,16 @@ func Test05_Styles_Valid(t *testing.T) {
 
 func Test05_Styles_Invalid(t *testing.T) {
 	expected := "{\"error\":\"open ./UI/styles/NOTFOUND.css: no such file or directory\"}"
-
+    expectedCode := http.StatusNotFound
 	server := SetupTestServer()
 
 	req, _ := http.NewRequest("GET", "/styles/NOTFOUND.css", nil)
 	w := httptest.NewRecorder()
 
 	server.ServeHTTP(w, req)
-
+    
 	assert.Equal(t, expected, w.Body.String())
+    assert.Equal(t, expectedCode, w.Code)
 }
 
 // func Test06_HTML(t *testing.T){
