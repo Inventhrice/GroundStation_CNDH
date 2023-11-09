@@ -75,3 +75,34 @@ func Test03_PutTelemetry_InvalidInput(t *testing.T) {
     server.ServeHTTP(w, req)
     assert.Equal(t, expectedCode, w.Code)
 }
+
+func Test04_Scripts(t *testing.T){
+	expected := "testTextfor js file"
+	
+	server := gin.Default()
+	server.GET("/scripts/:name", serveScripts)
+	
+}
+
+func Test05_Styles(t *testing.T){
+	expected := "testTextfor css file"
+
+	server := gin.Default()
+	server.GET("/styles/:name", serveCSS)
+}
+
+func Test06_HTML(t *testing.T){
+	
+}
+
+func Test07_Root(t *testing.T){
+	expected := http.StatusOK
+	expectedMsg := "Server is running"
+
+	server := gin.Default()
+	server.GET("/", getRoot)
+}
+
+func test08_readIPCFG(t *testing.T){
+	
+}
