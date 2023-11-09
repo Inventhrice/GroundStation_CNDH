@@ -11,14 +11,14 @@ import (
 
 func SetupTestServer() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
-	return gin.Default()
+	server := setupServer()
+	return server
 }
 
 func Test04_Scripts_Valid(t *testing.T) {
 	expected := "testTextfor js file"
 
 	server := SetupTestServer()
-	server.GET("/scripts/:name", serveScripts)
 
 	req, _ := http.NewRequest("GET", "/scripts/test.js", nil)
 	w := httptest.NewRecorder()
@@ -32,7 +32,6 @@ func Test05_Styles_Valid(t *testing.T) {
 	expected := "testTextfor css file"
 
 	server := SetupTestServer()
-	server.GET("/styles/:name", serveCSS)
 
 	req, _ := http.NewRequest("GET", "/styles/test.css", nil)
 	w := httptest.NewRecorder()
@@ -46,7 +45,6 @@ func Test04_Scripts_Invalid(t *testing.T) {
 	expected := "{\"error\":\"open ./UI/scripts/NOTFOUND.js: The system cannot find the file specified.\"}"
 
 	server := SetupTestServer()
-	server.GET("/scripts/:name", serveScripts)
 
 	req, _ := http.NewRequest("GET", "/scripts/NOTFOUND.js", nil)
 	w := httptest.NewRecorder()
@@ -60,7 +58,6 @@ func Test05_Styles_Invalid(t *testing.T) {
 	expected := "{\"error\":\"open ./UI/styles/NOTFOUND.css: The system cannot find the file specified.\"}"
 
 	server := SetupTestServer()
-	server.GET("/styles/:name", serveCSS)
 
 	req, _ := http.NewRequest("GET", "/styles/NOTFOUND.css", nil)
 	w := httptest.NewRecorder()
@@ -79,7 +76,6 @@ func Test07_Root(t *testing.T) {
 	expectedMsg := "{\"message\":\"Server is running\"}"
 
 	server := SetupTestServer()
-	server.GET("/", getRoot)
 
 	req, _ := http.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
