@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ground Command and Data Handling</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Ground Command and Data Handling</h1>
+        <p>Displaying spacecraft telemetry, angle, and temperature, sending commands to spacecraft</p>
+    </header>
+
+    <section class="container">
+
+        <div class="readings-container">
+            <h2>Current Ship Readings: </h2>
+            <div class="readings">
+                <label>Co-ordinates:</label>
+                <span id="x-coordinate">1, </span>
+                <span id="y-coordinate">1, </span>
+                <span id="z-coordinate">1</span>
+            </div>
+
+            <div class="readings">
+                <label>Temperature:</label>
+                <span id="temp"> °C</span>
+            </div>
+
+            <div class="readings">
+                <label>Angle (Pitch/Yaw/Roll):</label>
+                <span id="angle">1°, </span>
+                <span id="angle">1°, </span>
+                <span id="angle">1°</span>
+            </div>
+
+            <div class="readings">
+                <label>Status:</label>
+                <span id="status">Payload: </span>
+                <span id="status">Waiting for Data: </span>
+                <br>
+                <span id="status">Charge Status: </span>
+                <span id="status">Current Voltage: </span>
+
+            </div>
+
+        </div>
+
+        <div class="coordinate-input-container">
+            <h2>Co-ordinate Input:</h2>
+            <div class="coordinate-input">
+                <input type="number" placeholder="X">
+                <input type="number" placeholder="Y">
+                <input type="number" placeholder="Z">
+            </div>
+            <button id="sendCommandBtn">Send Command</button>
+        </div>
+
+        <div class="telemetry-input-container">
+            <h2>Co-ordinate Input:</h2>
+            <div class="coordinate-input">
+                <input type="number" placeholder="X">
+                <input type="number" placeholder="Y">
+                <input type="number" placeholder="Z">
+            </div>
+            <h2>Angle Input:</h2>
+            <div class="angle-input">
+                <input type="number" placeholder="Pitch">
+                <input type="number" placeholder="Yaw">
+                <input type="number" placeholder="Roll">
+            </div>
+            <button id="sendCommandBtn">Send Command</button>
+        </div>
+
+        <div class="angle-input-container">
+            <h2>Angle Input:</h2>
+            <div class="angle-input">
+                <input type="number" placeholder="Pitch">
+                <input type="number" placeholder="Yaw">
+                <input type="number" placeholder="Roll">
+            </div>
+            <button id="sendCommandBtn">Send Command</button>
+        </div>
+
+        <div class="controls">
+            <h2>User Interface Controls</h2>
+            <ul>
+                <li><button id="getTelemetryBtn">Request Current Telemetry</button></li>
+                <li><button id="setTelemetryBtn">Set Telemetry</button></li>
+                <li><button id="setCoordinateBtn">Set Co-ordinates</button></li>
+                <li><button id="setAngleBtn">Set Angle</button></li> 
+            </ul>
+        </div>
+
+    </section>
+
+    <script src="/scripts/script.js"></script>
+
+
+</body>
+
+</html>

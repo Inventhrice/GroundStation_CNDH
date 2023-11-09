@@ -157,8 +157,7 @@ func readIPCFG() {
 	}
 }
 
-func main() {
-	readIPCFG()
+func setupServer() *gin.Engine {
 	server := gin.Default()
 	server.LoadHTMLFiles("UI/index.tmpl")
 	server.GET("/", getRoot)
@@ -167,6 +166,12 @@ func main() {
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
 	server.GET("/status", status)
+	return server
+}
+
+func main() {
+	readIPCFG()
+	server := setupServer()
 	server.Run() // By default, it will start the server on http://localhost:8080
 
 }
