@@ -109,7 +109,7 @@ func Test04_Scripts_Valid(t *testing.T) {
 }
 
 func Test04_Scripts_Invalid(t *testing.T) {
-	expected := "{\"error\":\"open ./UI/scripts/NOTFOUND.js: The system cannot find the file specified.\"}"
+	expected := "{\"error\":\"open ./UI/scripts/NOTFOUND.js: no such file or directory\"}"
 
 	server := SetupTestServer()
 
@@ -135,7 +135,7 @@ func Test05_Styles_Valid(t *testing.T) {
 }
 
 func Test05_Styles_Invalid(t *testing.T) {
-	expected := "{\"error\":\"open ./UI/styles/NOTFOUND.css: The system cannot find the file specified.\"}"
+	expected := "{\"error\":\"open ./UI/styles/NOTFOUND.css: no such file or directory\"}"
 
 	server := SetupTestServer()
 
