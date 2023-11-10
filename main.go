@@ -124,8 +124,7 @@ func serveCSS(c *gin.Context) {
 }
 
 func status(c *gin.Context) {
-	uri := fmt.Sprintf("http://%s:8080/status", listIPs[4])
-
+	uri := fmt.Sprintf("http://%s:8080/status/", listIPs[4])
 	//Error handling not implemented on purpose because
 	// "An error is returned if there were too many redirects or if there was an HTTP protocol error.
 	// A non-2xx response doesn't cause an error."
