@@ -125,6 +125,7 @@ func serveCSS(c *gin.Context) {
 
 func status(c *gin.Context) {
 	uri := fmt.Sprintf("http://%s:8080/status/", listIPs[4])
+	fmt.Println(uri)
 	//Error handling not implemented on purpose because
 	// "An error is returned if there were too many redirects or if there was an HTTP protocol error.
 	// A non-2xx response doesn't cause an error."
@@ -141,19 +142,19 @@ func status(c *gin.Context) {
 
 }
 
-func readIPCFG() {
-	f, err := os.Open("ip.cfg")
-	if err != nil {
-		fmt.Println("Cannot read ip.cfg.")
+func readIPCFG(path string) (map[int]string, error) {
+	ips := make(map[int]string)
+	f, err := os.Open(path)
+	if err == nil {
+		defer f.Close()
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			inData := strings.Split(scanner.Text(), ",")
+			id, _ := strconv.Atoi(inData[1])
+			ips[id] = inData[0]
+		}
 	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		inData := strings.Split(scanner.Text(), ",")
-		id, _ := strconv.Atoi(inData[1])
-		listIPs[id] = inData[0]
-	}
+	return ips, err
 }
 
 func setupServer() *gin.Engine {
@@ -169,8 +170,13 @@ func setupServer() *gin.Engine {
 }
 
 func main() {
-	readIPCFG()
-	server := setupServer()
-	server.Run() // By default, it will start the server on http://localhost:8080
+	temp, err := readIPCFG("ip.cfg")
+	if err == nil {
+		listIPs = temp
+		server := setupServer()
+		server.Run() // By default, it will start the server on http://localhost:8080
+	} else {
+		fmt.Println("Cannot read ip.cfg.")
+	}
 
 }
