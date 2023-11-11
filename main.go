@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -23,7 +24,7 @@ var listIPs = make(map[int]string)
 func handleScenarioOne(c *gin.Context, r RedirectRequest) {
 	// Create a new HTTP request with the verb, URI and
 	// data as specified by the RedirectRequest
-	req, err := http.NewRequest(r.Verb, r.URI, r.Data)
+	req, err := http.NewRequest(r.Verb, r.URI, bytes.NewReader([]byte(r.Data)))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -47,7 +48,7 @@ func handleScenarioOne(c *gin.Context, r RedirectRequest) {
 //   - Uplink/Downlink (Space)
 //   - Payload Ops (Center)
 func handleScenarioTwo(c *gin.Context, r RedirectRequest) {
-	req, err := http.NewRequest(r.Verb, "/receive/?data="..."", nil)
+
 }
 
 func receive(c *gin.Context) {
@@ -69,7 +70,7 @@ func receive(c *gin.Context) {
 	//
 	// E.g. "http://10.1.1.1:8080/telemetry/?id=5"
 	//   => "10.1.1.1"
- 	ip := url.ParseRequestURI(req.URI).Hostname()
+	ip := url.ParseRequestURI(req.URI).Hostname()
 
 	// Client is what makes the HTTP request
 	client := &http.Client{}
