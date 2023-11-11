@@ -163,9 +163,11 @@ func Test08_Root(t *testing.T) {
 }
 
 func test09_readIPCFG_Valid(t *testing.T) {
-
+	_, err := readIPCFG("ip.cfg")
+	assert.Nil(t, err)
 }
 
 func test10_readIPCFG_Invalid(t *testing.T) {
-
+	_, err := readIPCFG("nilpath.cfg")
+	assert.NotNil(t, err)
 }
