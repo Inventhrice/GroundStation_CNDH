@@ -29,7 +29,6 @@ func handleScenarioOne(c *gin.Context, r RedirectRequest) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-
 	// Send this request using the default HTTP Client
 	// and receive a response
 	resp, err := http.DefaultClient.Do(req)
@@ -70,10 +69,20 @@ func receive(c *gin.Context) {
 	//
 	// E.g. "http://10.1.1.1:8080/telemetry/?id=5"
 	//   => "10.1.1.1"
-	ip := url.ParseRequestURI(req.URI).Hostname()
+
+	// Attempt to parse the IP from the RedirectRequest
+	parsedURL, err := url.ParseRequestURI(req.URI)
+	if err != nil {
+		// Handle the error, for example, abort the request
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	// Get the hostname from the parsed URL
+	ip := parsedURL.Hostname()
 
 	// Client is what makes the HTTP request
-	client := &http.Client{}
+	resp, err := http.DefaultClient.Do(req)
 
 	// Redirect to specific IPS:
 	//   1 - Payload Ops (Space)
@@ -83,7 +92,7 @@ func receive(c *gin.Context) {
 	//   5 - CNDH (Ground) [US]
 	//   6 - Payload Ops (Ground)
 	//   7 - Payload Ops (Center)
-	switch ip[0] {
+	switch ip {
 	case listIPs[4], listIPs[6]:
 		handleScenarioOne(c, req)
 		return
