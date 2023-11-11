@@ -26,3 +26,10 @@ type TelemetryData struct {
 	Temp        string      `json:"temp"`
 	Status      Status      `json:"status"`
 }
+
+// Request represents the JSON data structure for incoming requests.
+type RedirectRequest struct {
+	Verb string `json:"verb"`
+	URI  string `json:"uri"`
+	Data string `json:"data"`
+}

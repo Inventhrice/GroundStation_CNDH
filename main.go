@@ -15,77 +15,68 @@ import (
 var telemetryDB = make(map[string]TelemetryData)
 var listIPs = make(map[int]string)
 
-// Request represents the JSON data structure for incoming requests.
-type Request struct {
-	Destination string `json:"destination"`
-	Verb        string `json:"verb"`
-	IP          string `json:"ip"`
-	Route       string `json:"route"`
-}
-
 func receive(c *gin.Context) {
-	jsonData := c.Query("data") // data parsed from query parameter
-	var request Request         // the struct we made to parse the JSON
-	if err := json.Unmarshal([]byte(jsonData), &request); err != nil {
-		c.JSON(400, gin.H{"error": "Invalid JSON data"}) //cannot parse
+	var RxData ForeignRequest
+	// Attempt to parse the incoming request's JSON into the "data" struct
+	if err := c.ShouldBindJSON(&RxData); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	destination := request.Destination
-	verb := request.Verb
-	ip := request.IP
-	route := request.Route
 
-	switch destination {
-	case "GroundPayloadOps":
-		if verb == "GET" { // Handle GET request for GroundPayloadOps
-			resp, err := http.Get("http://" + ip + route)
-			if err != nil {
-				c.JSON(500, gin.H{"error": "Failed to make GET request"})
-				return
-			}
-			defer resp.Body.Close() // cleanup and release HTTP request 
+	uri := RxData.URI[8:]         // URI used to extract the IP
+	ip := strings.Split(uri, "/") // ip extracted from URI
+	client := &http.Client{}
 
-			c.JSON(200, gin.H{"message": "GET request processed successfully"})
-		} else if verb == "PUT" { // Handle PUT request for GroundPayloadOps
-
-			c.JSON(200, gin.H{"message": "PUT request processed successfully"})
-		} else {
-			c.JSON(400, gin.H{"error": "Unsupported HTTP verb"})
-		}
-	case "UplinkDownlink":
-		if verb == "GET" { // Handle GET request for UplinkDownlink
-			resp, err := http.Get("http://" + ip + route)
-			if err != nil {
-				c.JSON(500, gin.H{"error": "Failed to make GET request"})
-				return
-			}
-			defer resp.Body.Close() // cleanup and release HTTP request 
-
-			c.JSON(200, gin.H{"message": "GET request processed successfully"})
-		} else if verb == "PUT" {
-
-			c.JSON(200, gin.H{"message": "PUT request processed successfully"})
-		} else {
-			c.JSON(400, gin.H{"error": "Unsupported HTTP verb"})
-		}
-
-	default://destination not in our scope so we Forward the request
-		resp, err := http.NewRequest(verb, "http://"+ip+route, nil)
+	switch ip[0] { //the ip extracted from the URI gets searched, destination
+	case listIPs[1], listIPs[2], listIPs[3]:
+		http.NewRequest(RxData.Verb, RxData.URI, nil)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Failed to create the request"})
 			return
 		}
-	
+		defer c.JSON(200, gin.H{"message": "Request processed successfully"})
+
+	case listIPs[4]: // Make request to Uplink/Downlink
+		http.NewRequest(RxData.Verb, RxData.URI, nil)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Failed to create the request"})
+			return
+		}
+		defer resp.Body.Close() // cleanup and release HTTP request
+		c.JSON(200, gin.H{"message": "Request processed successfully"})
+
+	case listIPs[5]:
+	// We shouldn't get this one???
+
+	case listIPs[6]:
+		http.NewRequest(RxData.Verb, RxData.URI, nil)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Failed to create the request"})
+			return
+		}
+		defer // cleanup and release HTTP request
+		c.JSON(200, gin.H{"message": "Request processed successfully"})
+		// Make request to GroundPayloadOps
+
+	case listIPs[7]:
+		// Route to ground payload ops
+		resp, err := http.NewRequest(RxData.Verb, "http://"+ip+route, nil)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "Failed to create the request"})
+			return
+		}
+
 		client := &http.Client{}
 		resp, err = client.Do(resp)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Failed to make the request"})
 			return
 		}
-		defer resp.Body.Close() // cleanup and release HTTP request 
-	
-		c.JSON(200, gin.H{"message": "Request processed successfully"})
+		defer resp.Body.Close() // cleanup and release HTTP request
 
+		c.JSON(200, gin.H{"message": "Request processed successfully"})
+	}
+	resp, err = client.Do(resp)
 }
 
 func putTelemetry(c *gin.Context) {
