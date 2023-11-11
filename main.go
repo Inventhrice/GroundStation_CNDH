@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -15,68 +17,86 @@ import (
 var telemetryDB = make(map[string]TelemetryData)
 var listIPs = make(map[int]string)
 
-func receive(c *gin.Context) {
-	var RxData ForeignRequest
-	// Attempt to parse the incoming request's JSON into the "data" struct
-	if err := c.ShouldBindJSON(&RxData); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+// Request is either:
+//   - Payload Ops (Ground)
+//   - Uplink/Downlink (Ground)
+func handleScenarioOne(c *gin.Context, r RedirectRequest) {
+	// Create a new HTTP request with the verb, URI and
+	// data as specified by the RedirectRequest
+	req, err := http.NewRequest(r.Verb, r.URI, r.Data)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	uri := RxData.URI[8:]         // URI used to extract the IP
-	ip := strings.Split(uri, "/") // ip extracted from URI
+	// Send this request using the default HTTP Client
+	// and receive a response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	// Send the response back to the user
+	io.Copy(c.Writer, resp.Body)
+}
+
+// Request is either:
+//   - Payload Ops (Space)
+//   - CNDH (Space)
+//   - Uplink/Downlink (Space)
+//   - Payload Ops (Center)
+func handleScenarioTwo(c *gin.Context, r RedirectRequest) {
+	req, err := http.NewRequest(r.Verb, "/receive/?data="..."", nil)
+}
+
+func receive(c *gin.Context) {
+	// Attempt to parse the incoming request's JSON into the "data" struct
+	var req RedirectRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		// Abort internally stops Gin from contiuing to handle the request
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	// Parse the IP from the RedirectRequest
+	//
+	// We do this by:
+	//   1. Calling url.ParseRequestURI which is a Golang
+	//      library function used to parse URLs
+	//   2. Call .Hostname() which returns the hostname of
+	//      the URL, this is where the IP is located
+	//
+	// E.g. "http://10.1.1.1:8080/telemetry/?id=5"
+	//   => "10.1.1.1"
+ 	ip := url.ParseRequestURI(req.URI).Hostname()
+
+	// Client is what makes the HTTP request
 	client := &http.Client{}
 
-	switch ip[0] { //the ip extracted from the URI gets searched, destination
-	case listIPs[1], listIPs[2], listIPs[3]:
-		http.NewRequest(RxData.Verb, RxData.URI, nil)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to create the request"})
-			return
-		}
-		defer c.JSON(200, gin.H{"message": "Request processed successfully"})
-
-	case listIPs[4]: // Make request to Uplink/Downlink
-		http.NewRequest(RxData.Verb, RxData.URI, nil)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to create the request"})
-			return
-		}
-		defer resp.Body.Close() // cleanup and release HTTP request
-		c.JSON(200, gin.H{"message": "Request processed successfully"})
-
-	case listIPs[5]:
-	// We shouldn't get this one???
-
-	case listIPs[6]:
-		http.NewRequest(RxData.Verb, RxData.URI, nil)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to create the request"})
-			return
-		}
-		defer // cleanup and release HTTP request
-		c.JSON(200, gin.H{"message": "Request processed successfully"})
-		// Make request to GroundPayloadOps
-
-	case listIPs[7]:
-		// Route to ground payload ops
-		resp, err := http.NewRequest(RxData.Verb, "http://"+ip+route, nil)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to create the request"})
-			return
-		}
-
-		client := &http.Client{}
-		resp, err = client.Do(resp)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to make the request"})
-			return
-		}
-		defer resp.Body.Close() // cleanup and release HTTP request
-
-		c.JSON(200, gin.H{"message": "Request processed successfully"})
+	// Redirect to specific IPS:
+	//   1 - Payload Ops (Space)
+	//   2 - CNDH (Space)
+	//   3 - Uplink/Downlink (Space)
+	//   4 - Uplink/Downlink (Ground)
+	//   5 - CNDH (Ground) [US]
+	//   6 - Payload Ops (Ground)
+	//   7 - Payload Ops (Center)
+	switch ip[0] {
+	case listIPs[4], listIPs[6]:
+		handleScenarioOne(c, req)
+		return
+	case listIPs[1], listIPs[2], listIPs[3], listIPs[7]:
+		handleScenarioTwo(c, req)
+		return
 	}
-	resp, err = client.Do(resp)
+
+	// If we're here, we don't have a valid IP address
+	//
+	// Note: This could mean we were the IP address and it's
+	//       not allowed to send a request back to ourselves
+	//       so it's fine if we abort
+	c.AbortWithStatus(http.StatusBadRequest)
 }
 
 func putTelemetry(c *gin.Context) {
