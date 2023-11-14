@@ -23,8 +23,9 @@ var listIPs = make(map[int]string)
 //   - Uplink/Downlink (Ground)
 func handleScenarioOne(c *gin.Context, r RedirectRequest) {
 	// Define the routes for the two modules
-	UplinkRoute := "http://uplink-downlink-module/send/"
-	PayloadRoute := "http://payload-ops-module/send/"
+	UplinkRoute := "http://uplink-downlink-module-URL/send/"
+	PayloadRoute := "http://payload-ops-module-URL/images/"
+
 }
 
 // Request is either:
