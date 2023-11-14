@@ -22,6 +22,18 @@ var listIPs = make(map[int]string)
 //   - Payload Ops (Ground)
 //   - Uplink/Downlink (Ground)
 func handleScenarioOne(c *gin.Context, r RedirectRequest) {
+	// Define the routes for the two modules
+	UplinkRoute := "http://uplink-downlink-module/send/"
+	PayloadRoute := "http://payload-ops-module/send/"
+}
+
+// Request is either:
+//   - Payload Ops (Space)
+//   - CNDH (Space)
+//   - Uplink/Downlink (Space)
+//   - Payload Ops (Center)
+func handleScenarioTwo(c *gin.Context, r RedirectRequest) {
+
 	// Create a new HTTP request with the verb, URI and
 	// data as specified by the RedirectRequest
 	req, err := http.NewRequest(r.Verb, r.URI, bytes.NewReader([]byte(r.Data)))
@@ -39,14 +51,6 @@ func handleScenarioOne(c *gin.Context, r RedirectRequest) {
 
 	// Send the response back to the user
 	io.Copy(c.Writer, resp.Body)
-}
-
-// Request is either:
-//   - Payload Ops (Space)
-//   - CNDH (Space)
-//   - Uplink/Downlink (Space)
-//   - Payload Ops (Center)
-func handleScenarioTwo(c *gin.Context, r RedirectRequest) {
 
 }
 
