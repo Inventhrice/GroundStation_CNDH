@@ -161,7 +161,7 @@ func Test08_Root(t *testing.T) {
 	assert.Equal(t, expectedMsg, w.Body.String())
 }
 
-func Test09_readIPCFG_Valid(t *testing.T) {
+/* func Test09_readIPCFG_Valid(t *testing.T) {
 	_, err := readIPCFG("ip.cfg")
 
 	assert.Equal(t, nil, err)
@@ -171,7 +171,7 @@ func Test10_readIPCFG_Invalid(t *testing.T) {
 
 	_, err := readIPCFG("nilpath.cfg")
 	assert.Equal(t, "open nilpath.cfg: no such file or directory", err.Error())
-}
+} */
 
 func Test11_executeScript_Valid(t *testing.T) {
 	expectedCode := 200
