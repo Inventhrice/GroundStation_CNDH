@@ -22,9 +22,37 @@ var listIPs = make(map[int]string)
 //   - Payload Ops (Ground)
 //   - Uplink/Downlink (Ground)
 func handleScenarioOne(c *gin.Context, r RedirectRequest) {
-	// Define the routes for the two modules
-	UplinkRoute := "http://uplink-downlink-module-URL/send/"
-	PayloadRoute := "http://payload-ops-module-URL/images/"
+	// Route that we Use for determining which Module Does it go to
+	var moduleRoute string
+
+	// Check if the request is for UplinkDownlink module or Payload
+	// The Current URLs are Stubs
+	if strings.Contains(r.URI, "/send") {
+		moduleRoute = "http://uplink-downlink-module-URL/send/"
+	} else if strings.Contains(r.URI, "/images") { // Check if the request is for PayloadOps module
+		moduleRoute = "http://payload-ops-module-URL/images/"
+	} else {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	// Creating a new HTTP request for the module
+	req, err := http.NewRequest(r.Verb, moduleRoute, bytes.NewReader([]byte(r.Data)))
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	// Send this request using the default HTTP Client
+	// and receive a response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	// Send the response back to the user
+	io.Copy(c.Writer, resp.Body)
 
 }
 
