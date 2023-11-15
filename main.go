@@ -18,9 +18,9 @@ func executeScript(c *gin.Context) {
 	scriptName := c.Param("script")
 	f, err := os.Open("scripts/" + scriptName + ".json")
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
 	}
-	c.JSON(200, gin.H{"responses": ""})
+	c.Status(200)
 	f.Close()
 }
 
