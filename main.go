@@ -16,10 +16,11 @@ var listIPs = make(map[int]string)
 
 func executeScript(c *gin.Context) {
 	scriptName := c.Query("script")
-	if f, err := os.Open("scripts/" + scriptName); err != nil {
+	f, err := os.Open("scripts/" + scriptName)
+	if err != nil {
 
 	}
-
+	f.Close()
 }
 
 func getRoot(c *gin.Context) { // Root route reads from json file and puts the data into the html (tmpl) file for display
