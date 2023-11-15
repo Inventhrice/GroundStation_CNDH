@@ -19,4 +19,4 @@ GET http://localhost:8080/UI/styles/styles.css
 
 ###
 
-GET http://localhost:8080/execute/testScriptNam
+GET http://localhost:8080/execute/testScriptName

@@ -32,9 +32,10 @@ func parseScript(scriptName string) (map[int]RedirectRequest, int, error) {
 	count := 0
 	i := 0
 	scanner := bufio.NewScanner(f)
+	var temp RedirectRequest
 	for scanner.Scan() {
-		var temp RedirectRequest
-		if scanner.Text() == "STOP" {
+		input := scanner.Text()
+		if input == "STOP" {
 			if i == 2 {
 				temp.Data = ""
 			}
@@ -44,11 +45,11 @@ func parseScript(scriptName string) (map[int]RedirectRequest, int, error) {
 		} else {
 			switch i {
 			case 0:
-				temp.Verb = scanner.Text()
+				temp.Verb = input
 			case 1:
-				temp.URI = scanner.Text()
+				temp.URI = input
 			case 2:
-				temp.Data = scanner.Text()
+				temp.Data = input
 			}
 			i++
 		}
@@ -57,6 +58,7 @@ func parseScript(scriptName string) (map[int]RedirectRequest, int, error) {
 }
 
 func executeScript(c *gin.Context) {
+
 	scriptName := c.Param("script")
 
 	writeLog, err := os.Create("scriptOutput.log")
@@ -69,8 +71,9 @@ func executeScript(c *gin.Context) {
 
 	allRequests, count, err := parseScript(scriptName)
 	if err != nil {
+		writeLog.WriteString(err.Error())
 		c.AbortWithStatus(400)
-		writeLog.Write([]byte(err.Error()))
+		return
 	}
 	for i := 0; i < count; i++ {
 		temp := allRequests[count]
