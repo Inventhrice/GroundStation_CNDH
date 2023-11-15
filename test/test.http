@@ -17,3 +17,6 @@ GET http://localhost:8080/telemetry/?id=1
 
 GET http://localhost:8080/UI/styles/styles.css
 
+###
+
+GET http://localhost:8080/execute/testScriptNam
