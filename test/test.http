@@ -15,7 +15,7 @@ GET http://localhost:8080/telemetry/
 
 ###
 
-GET http://localhost:8080/UI/styles/styles.css
+GET http://localhost:8080/styles/styles.css
 
 ###
 
