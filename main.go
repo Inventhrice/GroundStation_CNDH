@@ -47,7 +47,9 @@ func parseScript(scriptName string) (map[int]RedirectRequest, error) {
 			case 0:
 				temp.Verb = input
 			case 1:
-				temp.URI = input
+				indexStr := input[strings.Index(input, "[")+1 : strings.Index(input, "]")]
+				index, _ := strconv.Atoi(indexStr)
+				temp.URI = strings.Replace(input, "["+indexStr+"]", listIPs[index], 1)
 			case 2:
 				temp.Data = input
 			}
