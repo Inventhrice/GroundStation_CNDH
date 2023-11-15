@@ -83,7 +83,7 @@ func executeScript(c *gin.Context) {
 				req, _ := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
 			} */
 		res, _ := http.DefaultClient.Do(req)
-
+		fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", res.Body)
 	}
 	c.Status(200)
 }
