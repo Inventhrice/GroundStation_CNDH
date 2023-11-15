@@ -164,10 +164,17 @@ func Test08_Root(t *testing.T) {
 
 func test09_readIPCFG_Valid(t *testing.T) {
 	_, err := readIPCFG("ip.cfg")
-	assert.Nil(t, err)
+
+	assert.Equal(t, nil, err)
 }
 
 func test10_readIPCFG_Invalid(t *testing.T) {
+
 	_, err := readIPCFG("nilpath.cfg")
-	assert.NotNil(t, err)
+	assert.Equal(t, "open ./UI/styles/NOTFOUND.css: no such file or directory", err)
+}
+
+func test11_executeScript(t *testing.T) {
+
+	executeScript(nil)
 }
