@@ -87,18 +87,14 @@ func executeScript(c *gin.Context) {
 			if temp.Data != "" {
 				req.Header.Set("content-type", "application/json")
 			}
-
 			res, _ := http.DefaultClient.Do(req)
-			fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", res.Body)
-		}
-		/*
-			Keeping this line of code here because im not sure what occurs in strings.NewReader("")
-			if temp.Data == "" {
-				req, _ := http.NewRequest(temp.Verb, temp.URI, nil)
+			if res != nil {
+				fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", res.Body)
 			} else {
-				req, _ := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
+				fmt.Fprintln(writeLog, "Got a 500")
 			}
-		*/
+
+		}
 
 	}
 	c.Status(200)

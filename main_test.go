@@ -13,6 +13,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func makeTestListIP() map[int]string {
+	temp := make(map[int]string)
+	for i := 1; i <= 7; i++ {
+		temp[i] = "localhost"
+	}
+	return temp
+}
+
 func SetupTestServer() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	server := setupServer()
@@ -176,6 +184,7 @@ func Test10_readIPCFG_Invalid(t *testing.T) {
 func Test11_executeScript_Valid(t *testing.T) {
 	expectedCode := 200
 
+	listIPs = makeTestListIP()
 	server := SetupTestServer()
 	req, _ := http.NewRequest("GET", "/execute/testScriptName", nil)
 	w := httptest.NewRecorder()
