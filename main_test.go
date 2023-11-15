@@ -162,19 +162,19 @@ func Test08_Root(t *testing.T) {
 	assert.Equal(t, expectedMsg, w.Body.String())
 }
 
-func test09_readIPCFG_Valid(t *testing.T) {
+func Test09_readIPCFG_Valid(t *testing.T) {
 	_, err := readIPCFG("ip.cfg")
 
 	assert.Equal(t, nil, err)
 }
 
-func test10_readIPCFG_Invalid(t *testing.T) {
+func Test10_readIPCFG_Invalid(t *testing.T) {
 
 	_, err := readIPCFG("nilpath.cfg")
-	assert.Equal(t, "open ./UI/styles/NOTFOUND.css: no such file or directory", err)
+	assert.Equal(t, "open nilpath.cfg: no such file or directory", err.Error())
 }
 
-func test11_executeScript(t *testing.T) {
+func Test11_executeScript(t *testing.T) {
 
 	executeScript(nil)
 }
