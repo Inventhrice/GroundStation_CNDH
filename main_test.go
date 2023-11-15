@@ -13,6 +13,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func makeTestListIP() map[int]string {
+	temp := make(map[int]string)
+	for i := 1; i <= 7; i++ {
+		temp[i] = "localhost"
+	}
+	return temp
+}
+
 func SetupTestServer() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	server := setupServer()
@@ -155,19 +163,43 @@ func Test08_Root(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
-
 	server.ServeHTTP(w, req)
 
 	assert.Equal(t, expected, w.Code)
 	assert.Equal(t, expectedMsg, w.Body.String())
 }
 
-func test09_readIPCFG_Valid(t *testing.T) {
+/* func Test09_readIPCFG_Valid(t *testing.T) {
 	_, err := readIPCFG("ip.cfg")
-	assert.Nil(t, err)
+
+	assert.Equal(t, nil, err)
 }
 
-func test10_readIPCFG_Invalid(t *testing.T) {
+func Test10_readIPCFG_Invalid(t *testing.T) {
+
 	_, err := readIPCFG("nilpath.cfg")
-	assert.NotNil(t, err)
+	assert.Equal(t, "open nilpath.cfg: no such file or directory", err.Error())
+} */
+
+func Test11_executeScript_Valid(t *testing.T) {
+	expectedCode := 200
+
+	listIPs = makeTestListIP()
+	server := SetupTestServer()
+	req, _ := http.NewRequest("GET", "/execute/testScriptName", nil)
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+
+	assert.Equal(t, expectedCode, w.Code)
+}
+func Test12_executeScript_InvalidScript(t *testing.T) {
+	expectedCode := 400
+
+	server := SetupTestServer()
+	req, _ := http.NewRequest("GET", "/execute/NOTFOUNDFILE", nil)
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+
+	assert.Equal(t, expectedCode, w.Code)
+
 }
