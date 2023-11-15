@@ -155,7 +155,6 @@ func Test08_Root(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
-
 	server.ServeHTTP(w, req)
 
 	assert.Equal(t, expected, w.Code)
@@ -174,7 +173,24 @@ func Test10_readIPCFG_Invalid(t *testing.T) {
 	assert.Equal(t, "open nilpath.cfg: no such file or directory", err.Error())
 }
 
-func Test11_executeScript(t *testing.T) {
+func Test11_executeScript_Valid(t *testing.T) {
+	expectedCode := 200
 
-	executeScript(nil)
+	server := SetupTestServer()
+	req, _ := http.NewRequest("GET", "/executeScript/testScriptName", nil)
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+
+	assert.Equal(t, expectedCode, w.Code)
+}
+func Test12_executeScript_InvalidScript(t *testing.T) {
+	expectedCode := 400
+
+	server := SetupTestServer()
+	req, _ := http.NewRequest("GET", "/executeScript/NOTFOUNDFILE", nil)
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+
+	assert.Equal(t, expectedCode, w.Code)
+
 }
