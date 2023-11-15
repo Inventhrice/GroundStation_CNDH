@@ -1,5 +1,5 @@
 GET
-http://[5]:8080/UI/styles/styles.css
+http://[5]:8080/styles/styles.css
 STOP
 PUT
 http://[5]:8080/telemetry
