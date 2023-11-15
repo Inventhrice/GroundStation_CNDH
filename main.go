@@ -15,8 +15,8 @@ import (
 var listIPs = make(map[int]string)
 
 func executeScript(c *gin.Context) {
-	scriptName := c.Query("script")
-	f, err := os.Open("scripts/" + scriptName)
+	scriptName := c.Param("script")
+	f, err := os.Open("scripts/" + scriptName + ".json")
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 	}
