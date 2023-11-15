@@ -20,10 +20,10 @@ type RedirectRequest struct {
 
 var listIPs = make(map[int]string)
 
-func parseScript(scriptName string) (map[int]RedirectRequest, error) {
+func parseScript(scriptName string) (map[int]RedirectRequest, int, error) {
 	f, err := os.Open("scripts/" + scriptName + ".json")
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer f.Close()
@@ -52,7 +52,7 @@ func parseScript(scriptName string) (map[int]RedirectRequest, error) {
 			}
 		}
 	}
-	return allRequests, nil
+	return allRequests, count, nil
 }
 
 func executeScript(c *gin.Context) {
@@ -66,12 +66,22 @@ func executeScript(c *gin.Context) {
 
 	defer writeLog.Close()
 
-	allRequests, err := parseScript(scriptName)
+	allRequests, count, err := parseScript(scriptName)
 	if err != nil {
 		c.AbortWithStatus(400)
 		writeLog.Write([]byte(err.Error()))
 	}
+	for i := 0; i < count; i++ {
+		temp := allRequests[count]
 
+		if temp.Data == "" {
+			req, _ := http.NewRequest(temp.Verb, temp.URI, nil)
+		} else {
+
+			req, _ := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
+		}
+
+	}
 	c.Status(200)
 }
 
