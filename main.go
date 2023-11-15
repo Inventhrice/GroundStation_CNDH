@@ -78,16 +78,22 @@ func executeScript(c *gin.Context) {
 
 	for i := 0; i < len(allRequests); i++ {
 		temp := allRequests[i]
-		req, _ := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
+		req, err := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
+		if err != nil {
+			fmt.Fprintln(writeLog, "Failed to make request ", temp.URI, " ", temp.URI)
+		} else {
+			res, _ := http.DefaultClient.Do(req)
+			fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", res.Body)
+		}
 		/*
 			Keeping this line of code here because im not sure what occurs in strings.NewReader("")
 			if temp.Data == "" {
 				req, _ := http.NewRequest(temp.Verb, temp.URI, nil)
 			} else {
 				req, _ := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
-			} */
-		res, _ := http.DefaultClient.Do(req)
-		fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", res.Body)
+			}
+		*/
+
 	}
 	c.Status(200)
 }
