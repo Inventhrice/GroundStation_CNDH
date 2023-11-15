@@ -177,7 +177,7 @@ func Test11_executeScript_Valid(t *testing.T) {
 	expectedCode := 200
 
 	server := SetupTestServer()
-	req, _ := http.NewRequest("GET", "/executeScript/testScriptName", nil)
+	req, _ := http.NewRequest("GET", "/execute/testScriptName", nil)
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 
@@ -187,7 +187,7 @@ func Test12_executeScript_InvalidScript(t *testing.T) {
 	expectedCode := 400
 
 	server := SetupTestServer()
-	req, _ := http.NewRequest("GET", "/executeScript/NOTFOUNDFILE", nil)
+	req, _ := http.NewRequest("GET", "/execute/NOTFOUNDFILE", nil)
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 
