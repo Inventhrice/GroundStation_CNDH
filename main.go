@@ -18,8 +18,9 @@ func executeScript(c *gin.Context) {
 	scriptName := c.Query("script")
 	f, err := os.Open("scripts/" + scriptName)
 	if err != nil {
-
+		c.JSON(400, gin.H{"error": err.Error()})
 	}
+	c.JSON(200, gin.H{"responses": ""})
 	f.Close()
 }
 
