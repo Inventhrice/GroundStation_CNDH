@@ -20,10 +20,10 @@ type RedirectRequest struct {
 
 var listIPs = make(map[int]string)
 
-func parseScript(scriptName string) (map[int]RedirectRequest, int, error) {
+func parseScript(scriptName string) (map[int]RedirectRequest, error) {
 	f, err := os.Open("scripts/" + scriptName + ".txt")
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	defer f.Close()
@@ -54,7 +54,7 @@ func parseScript(scriptName string) (map[int]RedirectRequest, int, error) {
 			i++
 		}
 	}
-	return allRequests, count, nil
+	return allRequests, nil
 }
 
 func executeScript(c *gin.Context) {
@@ -69,14 +69,15 @@ func executeScript(c *gin.Context) {
 
 	defer writeLog.Close()
 
-	allRequests, count, err := parseScript(scriptName)
+	allRequests, err := parseScript(scriptName)
 	if err != nil {
 		writeLog.WriteString(err.Error())
 		c.AbortWithStatus(400)
 		return
 	}
-	for i := 0; i < count; i++ {
-		temp := allRequests[count]
+
+	for i := 0; i < len(allRequests); i++ {
+		temp := allRequests[i]
 		req, _ := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
 		/*
 			Keeping this line of code here because im not sure what occurs in strings.NewReader("")
