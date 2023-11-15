@@ -12,24 +12,67 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type RedirectRequest struct {
+	Verb string `json:"verb"`
+	URI  string `json:"uri"`
+	Data string `json:"data"`
+}
+
 var listIPs = make(map[int]string)
+
+func parseScript(scriptName string) (map[int]RedirectRequest, error) {
+	f, err := os.Open("scripts/" + scriptName + ".json")
+	if err != nil {
+		return nil, err
+	}
+
+	defer f.Close()
+
+	allRequests := make(map[int]RedirectRequest)
+	count := 0
+	i := 0
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		var temp RedirectRequest
+		if scanner.Text() == "STOP" {
+			allRequests[count] = temp
+			count++
+			i = 0
+		} else {
+			switch i {
+			case 0:
+				temp.Verb = scanner.Text()
+				i++
+			case 1:
+				temp.URI = scanner.Text()
+				i++
+			case 2:
+				temp.Data = scanner.Text()
+				i++
+			}
+		}
+	}
+	return allRequests, nil
+}
 
 func executeScript(c *gin.Context) {
 	scriptName := c.Param("script")
+
 	writeLog, err := os.Create("scriptOutput.log")
 	if err != nil {
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	f, err := os.Open("scripts/" + scriptName + ".json")
+
+	defer writeLog.Close()
+
+	allRequests, err := parseScript(scriptName)
 	if err != nil {
 		c.AbortWithStatus(400)
-		writeLog.WriteString("ERR 400: " + err.Error())
-		return
+		writeLog.Write([]byte(err.Error()))
 	}
 
 	c.Status(200)
-	f.Close()
 }
 
 func getRoot(c *gin.Context) { // Root route reads from json file and puts the data into the html (tmpl) file for display
