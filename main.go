@@ -21,7 +21,7 @@ type RedirectRequest struct {
 var listIPs = make(map[int]string)
 
 func parseScript(scriptName string) (map[int]RedirectRequest, int, error) {
-	f, err := os.Open("scripts/" + scriptName + ".json")
+	f, err := os.Open("scripts/" + scriptName + ".txt")
 	if err != nil {
 		return nil, 0, err
 	}
@@ -35,6 +35,9 @@ func parseScript(scriptName string) (map[int]RedirectRequest, int, error) {
 	for scanner.Scan() {
 		var temp RedirectRequest
 		if scanner.Text() == "STOP" {
+			if i == 2 {
+				temp.Data = ""
+			}
 			allRequests[count] = temp
 			count++
 			i = 0
@@ -42,14 +45,12 @@ func parseScript(scriptName string) (map[int]RedirectRequest, int, error) {
 			switch i {
 			case 0:
 				temp.Verb = scanner.Text()
-				i++
 			case 1:
 				temp.URI = scanner.Text()
-				i++
 			case 2:
 				temp.Data = scanner.Text()
-				i++
 			}
+			i++
 		}
 	}
 	return allRequests, count, nil
@@ -73,13 +74,15 @@ func executeScript(c *gin.Context) {
 	}
 	for i := 0; i < count; i++ {
 		temp := allRequests[count]
-
-		if temp.Data == "" {
-			req, _ := http.NewRequest(temp.Verb, temp.URI, nil)
-		} else {
-
-			req, _ := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
-		}
+		req, _ := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
+		/*
+			Keeping this line of code here because im not sure what occurs in strings.NewReader("")
+			if temp.Data == "" {
+				req, _ := http.NewRequest(temp.Verb, temp.URI, nil)
+			} else {
+				req, _ := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
+			} */
+		res, _ := http.DefaultClient.Do(req)
 
 	}
 	c.Status(200)

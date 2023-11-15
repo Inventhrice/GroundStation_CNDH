@@ -1,7 +1,0 @@
-GET
-http://localhost:8080/UI/styles/styles.css
-STOP
-PUT
-http://localhost:8080/telemetry
-"\"coordinates\": { \"x\": \"8\", \"y\": \"9\", \"z\": \"10\" }, \"rotations\": { \"p\": \"1\", \"y\": \"2\", \"r\": \"3\" }, \"fuel\": \"100\", \"temp\": \"50\", \"status\": {\"payloadPower\": \"ON\", \"dataWaiting\": \"False\", \"chargeStatus\": \"False\", \"voltage\": \"12.5\"}"
-STOP
