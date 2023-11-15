@@ -1,0 +1,4 @@
+{"commands":[
+    "{\"verb\":\"GET\", \"uri\":\"http://localhost:8080/status\", \"data\":{}}",
+    "{\"verb\":\"GET\", \"uri\":\"http://localhost:8080/status\", \"data\":{}}"
+    ]}

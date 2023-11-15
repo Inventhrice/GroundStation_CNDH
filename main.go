@@ -14,6 +14,14 @@ import (
 
 var listIPs = make(map[int]string)
 
+func executeScript(c *gin.Context) {
+	scriptName := c.Query("script")
+	if f, err := os.Open("scripts/" + scriptName); err != nil {
+
+	}
+
+}
+
 func getRoot(c *gin.Context) { // Root route reads from json file and puts the data into the html (tmpl) file for display
 	c.JSON(200, gin.H{"message": "Server is running"})
 }
@@ -165,6 +173,7 @@ func setupServer() *gin.Engine {
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
 	server.GET("/status", status)
+	server.GET("/execute/:script", executeScript)
 	return server
 }
 
