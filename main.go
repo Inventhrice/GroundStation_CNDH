@@ -16,10 +16,18 @@ var listIPs = make(map[int]string)
 
 func executeScript(c *gin.Context) {
 	scriptName := c.Param("script")
-	f, err := os.Open("scripts/" + scriptName + ".json")
+	writeLog, err := os.Create("scriptOutput.log")
 	if err != nil {
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
+		return
 	}
+	f, err := os.Open("scripts/" + scriptName + ".json")
+	if err != nil {
+		c.AbortWithStatus(400)
+		writeLog.WriteString("ERR 400: " + err.Error())
+		return
+	}
+
 	c.Status(200)
 	f.Close()
 }
