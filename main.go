@@ -84,6 +84,10 @@ func executeScript(c *gin.Context) {
 		if err != nil {
 			fmt.Fprintln(writeLog, "Failed to make request ", temp.URI, " ", temp.URI)
 		} else {
+			if temp.Data != "" {
+				req.Header.Set("content-type", "application/json")
+			}
+
 			res, _ := http.DefaultClient.Do(req)
 			fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", res.Body)
 		}
