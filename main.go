@@ -73,10 +73,10 @@ func receive(c *gin.Context) {
 
 	// Parse the ID query parameter
 	stringID := c.Query("ID")
-	if stringID == "" {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
+	//if stringID == "" {
+	//	c.AbortWithStatus(http.StatusBadRequest)
+	//	return
+	//}
 	sourceID, err := strconv.Atoi(stringID)
 	if err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -96,7 +96,7 @@ func receive(c *gin.Context) {
 	//   6 - Payload Ops (Ground)
 	//   7 - Payload Ops (Center)
 	switch ip {
-	case listIPs[4]:
+	case listIPs[4], listIPs[5], listIPs[6]:
 		sendRedirectRequest(c, req.Verb, req.URI, []byte(req.Data))
 		return
 	case listIPs[1], listIPs[2], listIPs[3]:
@@ -116,7 +116,7 @@ func receive(c *gin.Context) {
 		// Send the request
 		sendRedirectRequest(c, "POST", uri, data)
 		return
-	case listIPs[6]:
+	case listIPs[7]:
 		// Create the URI
 		uri := listIPs[6] + "/images"
 
@@ -217,8 +217,7 @@ func status(c *gin.Context) {
 func readIPCFG() {
 	f, err := os.Open("ip.cfg")
 	if err != nil {
-		// Stop execution if cannot read config
-		panic("Cannot read ip.cfg.")
+		fmt.Println("Cannot read ip.cfg.")
 	}
 	defer f.Close()
 
@@ -239,6 +238,6 @@ func main() {
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
 	server.GET("/status", status)
-	server.POST("/receive", receive)
+	server.PUT("/receive", receive)
 	server.Run() // By default, it will start the server on http://localhost:8080
 }
