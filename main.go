@@ -2,23 +2,141 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-type RedirectRequest struct {
-	Verb string `json:"verb"`
-	URI  string `json:"uri"`
-	Data string `json:"data"`
+var listIPs = make(map[int]string)
+
+func sendRedirectRequest(c *gin.Context, verb string, uri string, data []byte) {
+	// Creates the request
+	reader := bytes.NewReader(data)
+
+	r, err := http.NewRequest(verb, "http://"+uri, reader)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	// Send the request
+	client := &http.Client{
+		// Manually add a timeout of 10 seconds
+		// because the default client does not
+		// contain one
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Do(r)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	// Replies with status code of request
+	c.Status(resp.StatusCode)
+	return
 }
 
-var listIPs = make(map[int]string)
+/*
+Example request.
+
+curl --header "Content-Type: application/json" \
+     --request POST \
+     --data '{"verb":"GET","uri":"10.1.1.1/telemetry","data":"example"}' \
+     "http://localhost:8080/receive?ID=1"
+*/
+
+func receive(c *gin.Context) {
+	// Attempt to parse the incoming request's JSON into the "data" struct
+	var req RedirectRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		// Abort internally stops Gin from contiuing to handle the request
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	// Parse the IP from the RedirectRequest
+	parts := strings.Split(req.URI, "/")
+	if len(parts) != 2 {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	ip := parts[0]
+
+	// Parse the ID query parameter
+	stringID := c.Query("ID")
+	//if stringID == "" {
+	//	c.AbortWithStatus(http.StatusBadRequest)
+	//	return
+	//}
+	sourceID, err := strconv.Atoi(stringID)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	if sourceID < 1 || sourceID > 7 {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	// Redirect to specific IPS:
+	//   1 - Payload Ops (Space)
+	//   2 - CNDH (Space)
+	//   3 - Uplink/Downlink (Space)
+	//   4 - Uplink/Downlink (Ground)
+	//   5 - CNDH (Ground) [US]
+	//   6 - Payload Ops (Ground)
+	//   7 - Payload Ops (Center)
+	switch ip {
+	case listIPs[4], listIPs[5], listIPs[6]:
+		sendRedirectRequest(c, req.Verb, req.URI, []byte(req.Data))
+		return
+	case listIPs[1], listIPs[2], listIPs[3]:
+		// TODO add source ID?
+		// uri := listIPs[4] + "/send?ID=" + stringID
+
+		// Create the URI
+		uri := listIPs[4] + "/send"
+
+		// Recreate the request data
+		data, err := json.Marshal(req)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		// Send the request
+		sendRedirectRequest(c, "POST", uri, data)
+		return
+	case listIPs[7]:
+		// Create the URI
+		uri := listIPs[6] + "/images"
+
+		// Recreate the request data
+		data, err := json.Marshal(req)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		sendRedirectRequest(c, "POST", uri, data)
+		return
+	}
+
+	// If we're here, we don't have a valid IP address
+	//
+	// Note: This could mean we were the IP address and it's
+	//       not allowed to send a request back to ourselves
+	//       so it's fine if we abort
+	c.AbortWithStatus(http.StatusBadRequest)
+}
 
 func parseScript(scriptName string) (map[int]RedirectRequest, error) {
 	f, err := os.Open("scripts/" + scriptName + ".txt")
@@ -210,8 +328,9 @@ func serveCSS(c *gin.Context) {
 }
 
 func status(c *gin.Context) {
-	uri := fmt.Sprintf("http://%s:8080/status/", listIPs[4])
-	//Error handling not implemented on purpose because
+	uri := fmt.Sprintf("http://%s:8080/status", listIPs[4])
+
+	// Error handling not implemented on purpose because
 	// "An error is returned if there were too many redirects or if there was an HTTP protocol error.
 	// A non-2xx response doesn't cause an error."
 	res, _ := http.Get(uri)
@@ -251,6 +370,7 @@ func setupServer() *gin.Engine {
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
 	server.GET("/status", status)
+  server.PUT("/receive", receive)
 	server.GET("/execute/:script", executeScript)
 	return server
 }
@@ -264,5 +384,4 @@ func main() {
 	} else {
 		fmt.Println("Cannot read ip.cfg.")
 	}
-
 }
