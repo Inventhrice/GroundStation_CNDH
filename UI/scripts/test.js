@@ -1,0 +1,1 @@
+testTextfor js file

@@ -1,0 +1,20 @@
+{
+    "coordinates": {
+        "x": "1",
+        "y": "1",
+        "z": "1"
+    },
+    "rotations": {
+        "p": "1",
+        "y": "1",
+        "r": "1"
+    },
+    "fuel": "",
+    "temp": "",
+    "status": {
+        "payloadPower": "",
+        "dataWaiting": "",
+        "chargeStatus": "",
+        "voltage": ""
+    }
+}
