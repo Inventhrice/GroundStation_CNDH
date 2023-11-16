@@ -5,12 +5,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,104 +17,75 @@ import (
 var telemetryDB = make(map[string]TelemetryData)
 var listIPs = make(map[int]string)
 
-// Request is either:
-//   - Payload Ops (Ground)
-//   - Uplink/Downlink (Ground)
-func handleScenarioOne(c *gin.Context, r RedirectRequest) {
-	// Route that we Use for determining which Module Does it go to
-	var moduleRoute string
+func sendRedirectRequest(c *gin.Context, verb string, uri string, data []byte) {
+	// Creates the request
+	reader := bytes.NewReader(data)
 
-	// Check if the request is for UplinkDownlink module or Payload
-	// The Current URLs are Stubs
-	if strings.Contains(r.URI, "/send") {
-		moduleRoute = "http://uplink-downlink-module-URL/send/"
-	} else if strings.Contains(r.URI, "/images") { // Check if the request is for PayloadOps module
-		moduleRoute = "http://payload-ops-module-URL/images/"
-	} else {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	// Creating a new HTTP request for the module
-	req, err := http.NewRequest(r.Verb, moduleRoute, bytes.NewReader([]byte(r.Data)))
+	r, err := http.NewRequest(verb, "http://"+uri, reader)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	// Send this request using the default HTTP Client
-	// and receive a response
-	resp, err := http.DefaultClient.Do(req)
+	// Send the request
+	client := &http.Client{
+		// Manually add a timeout of 10 seconds
+		// because the default client does not
+		// contain one
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Do(r)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	// Send the response back to the user
-	io.Copy(c.Writer, resp.Body)
-
+	// Replies with status code of request
+	c.Status(resp.StatusCode)
+	return
 }
 
-// Request is either:
-//   - Payload Ops (Space)
-//   - CNDH (Space)
-//   - Uplink/Downlink (Space)
-//   - Payload Ops (Center)
-func handleScenarioTwo(c *gin.Context, r RedirectRequest) {
+/*
+Example request.
 
-	// Create a new HTTP request with the verb, URI and
-	// data as specified by the RedirectRequest
-	req, err := http.NewRequest(r.Verb, r.URI, bytes.NewReader([]byte(r.Data)))
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	// Send this request using the default HTTP Client
-	// and receive a response
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	// Send the response back to the user
-	io.Copy(c.Writer, resp.Body)
-
-}
+curl --header "Content-Type: application/json" \
+     --request POST \
+     --data '{"verb":"GET","uri":"10.1.1.1/telemetry","data":"example"}' \
+     "http://localhost:8080/receive?ID=1"
+*/
 
 func receive(c *gin.Context) {
 	// Attempt to parse the incoming request's JSON into the "data" struct
 	var req RedirectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		// Abort internally stops Gin from contiuing to handle the request
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
 	// Parse the IP from the RedirectRequest
-	//
-	// We do this by:
-	//   1. Calling url.ParseRequestURI which is a Golang
-	//      library function used to parse URLs
-	//   2. Call .Hostname() which returns the hostname of
-	//      the URL, this is where the IP is located
-	//
-	// E.g. "http://10.1.1.1:8080/telemetry/?id=5"
-	//   => "10.1.1.1"
-
-	// Attempt to parse the IP from the RedirectRequest
-	parsedURL, err := url.ParseRequestURI(req.URI)
-	if err != nil {
-		// Handle the error, for example, abort the request
+	parts := strings.Split(req.URI, "/")
+	if len(parts) != 2 {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
+	ip := parts[0]
 
-	// Get the hostname from the parsed URL
-	ip := parsedURL.Hostname()
-
-	// Client is what makes the HTTP request
-	resp, err := http.DefaultClient.Do(req)
+	// Parse the ID query parameter
+	stringID := c.Query("ID")
+	if stringID == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	sourceID, err := strconv.Atoi(stringID)
+	if err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	if sourceID < 1 || sourceID > 7 {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 
 	// Redirect to specific IPS:
 	//   1 - Payload Ops (Space)
@@ -126,11 +96,38 @@ func receive(c *gin.Context) {
 	//   6 - Payload Ops (Ground)
 	//   7 - Payload Ops (Center)
 	switch ip {
-	case listIPs[4], listIPs[6]:
-		handleScenarioOne(c, req)
+	case listIPs[4]:
+		sendRedirectRequest(c, req.Verb, req.URI, []byte(req.Data))
 		return
-	case listIPs[1], listIPs[2], listIPs[3], listIPs[7]:
-		handleScenarioTwo(c, req)
+	case listIPs[1], listIPs[2], listIPs[3]:
+		// TODO add source ID?
+		// uri := listIPs[4] + "/send?ID=" + stringID
+
+		// Create the URI
+		uri := listIPs[4] + "/send"
+
+		// Recreate the request data
+		data, err := json.Marshal(req)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		// Send the request
+		sendRedirectRequest(c, "POST", uri, data)
+		return
+	case listIPs[6]:
+		// Create the URI
+		uri := listIPs[6] + "/images"
+
+		// Recreate the request data
+		data, err := json.Marshal(req)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		sendRedirectRequest(c, "POST", uri, data)
 		return
 	}
 
@@ -201,7 +198,7 @@ func serveCSS(c *gin.Context) {
 func status(c *gin.Context) {
 	uri := fmt.Sprintf("http://%s:8080/status", listIPs[4])
 
-	//Error handling not implemented on purpose because
+	// Error handling not implemented on purpose because
 	// "An error is returned if there were too many redirects or if there was an HTTP protocol error.
 	// A non-2xx response doesn't cause an error."
 	res, _ := http.Get(uri)
@@ -220,7 +217,8 @@ func status(c *gin.Context) {
 func readIPCFG() {
 	f, err := os.Open("ip.cfg")
 	if err != nil {
-		fmt.Println("Cannot read ip.cfg.")
+		// Stop execution if cannot read config
+		panic("Cannot read ip.cfg.")
 	}
 	defer f.Close()
 
@@ -241,7 +239,6 @@ func main() {
 	server.PUT("/telemetry/", putTelemetry)
 	server.GET("/telemetry/", getTelemetry)
 	server.GET("/status", status)
-	server.GET("/receive", receive)
+	server.POST("/receive", receive)
 	server.Run() // By default, it will start the server on http://localhost:8080
-
 }
