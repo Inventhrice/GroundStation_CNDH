@@ -14,12 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RedirectRequest struct {
-	Verb string `json:"verb"`
-	URI  string `json:"uri"`
-	Data string `json:"data"`
-}
-
 var listIPs = make(map[int]string)
 
 func sendRedirectRequest(c *gin.Context, verb string, uri string, data []byte) {
