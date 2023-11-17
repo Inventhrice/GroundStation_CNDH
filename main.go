@@ -133,7 +133,7 @@ func executeScript(c *gin.Context) {
 		temp := allRequests[i]
 		var req *http.Request
 		if temp.Data != "" {
-			req, err = http.NewRequest(temp.Verb, temp.URI, bytes.NewBufferString(temp.Data))
+			req, err = http.NewRequest(temp.Verb, temp.URI, bytes.NewBuffer(jsonStr))
 			req.Header.Set("content-type", "application/json")
 		} else {
 			req, err = http.NewRequest(temp.Verb, temp.URI, nil)
@@ -163,13 +163,11 @@ func getRoot(c *gin.Context) { // Root route reads from json file and puts the d
 func putTelemetry(c *gin.Context) {
 	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
-
 	// Attempt to parse the incoming request's JSON into the "data" struct
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-
 	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
 		c.JSON(400, gin.H{"error": writeErr.Error()})
@@ -250,8 +248,8 @@ func setupServer() *gin.Engine {
 	server.GET("/", getRoot)
 	server.GET("/scripts/:name", serveScripts)
 	server.GET("/styles/:name", serveCSS)
-	server.PUT("/telemetry/", putTelemetry)
-	server.GET("/telemetry/", getTelemetry)
+	server.PUT("/telemetry", putTelemetry)
+	server.GET("/telemetry", getTelemetry)
 	server.GET("/status", status)
 	server.PUT("/receive", receive)
 	server.GET("/execute/:script", executeScript)
