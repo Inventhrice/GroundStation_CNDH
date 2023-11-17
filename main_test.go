@@ -42,7 +42,7 @@ func Test01_PutTelemetry_ValidInput(t *testing.T) {
 
 	server := SetupTestServer()
 
-	req, _ := http.NewRequest("PUT", "/telemetry/", body)
+	req, _ := http.NewRequest("PUT", "/telemetry", body)
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	actual, _ := io.ReadAll(w.Body)
@@ -68,7 +68,7 @@ func Test01_PutTelemetry_ValidInput(t *testing.T) {
 func Test02_PutTelemetry_InvalidInput(t *testing.T) {
 	server := SetupTestServer()
 
-	req, _ := http.NewRequest("PUT", "/telemetry/", nil)
+	req, _ := http.NewRequest("PUT", "/telemetry", nil)
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	actual, _ := io.ReadAll(w.Body)
@@ -83,7 +83,7 @@ func Test02_PutTelemetry_InvalidInput(t *testing.T) {
 func Test03_GetTelemetry_Valid(t *testing.T) {
 	server := SetupTestServer()
 
-	req, _ := http.NewRequest("GET", "/telemetry/", nil)
+	req, _ := http.NewRequest("GET", "/telemetry", nil)
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	actual, _ := io.ReadAll(w.Body)
