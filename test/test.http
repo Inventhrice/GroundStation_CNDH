@@ -20,3 +20,43 @@ GET http://localhost:8080/styles/styles.css
 ###
 
 GET http://localhost:8080/execute/testScriptName
+
+####
+
+PUT http://localhost:8080/recieve?ID=5 HTTP/1.1
+content-type:application/json
+
+{
+    "verb":"GET",
+    "uri":"http://localhost:8080/telemetry/",
+    "data":{}
+}
+
+###
+
+PUT http://localhost:8080/recieve?ID=5 HTTP/1.1
+content-type:application/json
+
+{
+    "verb":"GET",
+    "uri":"http://localhost:8080/styles/styles.css",
+    "data":{}
+}
+
+###
+
+PUT http://localhost:8080/recieve?ID=5 HTTP/1.1
+content-type:application/json
+
+{
+    "verb":"PUT",
+    "uri":"http://localhost:8080/telemetry",
+    "data": 
+        {
+            "coordinates": { "x": "8", "y": "9", "z": "10" }, 
+            "rotations": { "p": "1", "y": "2", "r": "3" },
+            "fuel": "100",
+            "temp": "50",
+            "status": {"payloadPower": "ON", "dataWaiting": "False", "chargeStatus": "False", "voltage": "12.5"}
+        }
+}
