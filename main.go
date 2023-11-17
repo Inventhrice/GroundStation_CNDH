@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -129,16 +131,21 @@ func executeScript(c *gin.Context) {
 
 	for i := 0; i < len(allRequests); i++ {
 		temp := allRequests[i]
-		req, err := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
+		var req *http.Request
+		if temp.Data != "" {
+			req, err = http.NewRequest(temp.Verb, temp.URI, bytes.NewBufferString(temp.Data))
+			req.Header.Set("content-type", "application/json")
+		} else {
+			req, err = http.NewRequest(temp.Verb, temp.URI, nil)
+		}
+
 		if err != nil {
 			fmt.Fprintln(writeLog, "Failed to make request ", temp.URI, " ", temp.URI)
 		} else {
-			if temp.Data != "" {
-				req.Header.Set("content-type", "application/json")
-			}
 			res, _ := http.DefaultClient.Do(req)
 			if res != nil {
-				fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", res.Body)
+				body, _ := io.ReadAll(res.Body)
+				fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", string(body))
 			} else {
 				fmt.Fprintln(writeLog, "Got a 500")
 			}
