@@ -133,7 +133,7 @@ func executeScript(c *gin.Context) {
 		temp := allRequests[i]
 		var req *http.Request
 		if temp.Data != "" {
-			req, err = http.NewRequest(temp.Verb, temp.URI, bytes.NewBuffer(jsonStr))
+			req, err = http.NewRequest(temp.Verb, temp.URI, bytes.NewBufferString(temp.Data))
 			req.Header.Set("content-type", "application/json")
 		} else {
 			req, err = http.NewRequest(temp.Verb, temp.URI, nil)
