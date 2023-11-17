@@ -48,3 +48,24 @@ setAngleBtn.addEventListener('click', function() {
         angleInputContainer.style.display = 'none';
     }
 });
+
+var updateURI = "http://localhost:8080/update";
+var update = new EventSource(updateventURI);
+update.addEventListener("message", function(Event) {
+    const telemetry = JSON.parse(Event.data);
+    document.getElementById("x-coordinate").innerText(telemetry.coordinates.x);
+    document.getElementById("y-coordinate").innerText(telemetry.coordinates.y);
+    document.getElementById("z-coordinate").innerText(telemetry.coordinates.z);
+    document.getElementById("pitch").innerText(telemetry.rotations.p);
+    document.getElementById("yaw").innerText(telemetry.rotations.y);
+    document.getElementById("roll").innerText(telemetry.roations.r);
+    document.getElementById("temp").innerText(telemetry.temp);
+    document.getElementById("payload-power").innerText(telemetry.status.payloadPower);
+    document.getElementById("data-waiting").innerText(telemetry.status.dataWaiting);
+    document.getElementById("charge-status").innerText(telemetry.status.chargeStatus);
+    document.getElementById("voltage").innerText(telemetry.status.voltage);
+});
+
+window.addEventListener("beforeunload", function() {
+    update.close();
+});

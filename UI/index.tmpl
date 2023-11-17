@@ -32,18 +32,18 @@
 
             <div class="readings">
                 <label>Angle (Pitch/Yaw/Roll):</label>
-                <span id="angle">{{ .pitch }}°, </span>
-                <span id="angle">{{ .yaw }}°, </span>
-                <span id="angle">{{ .roll }}°</span>
+                <span id="pitch">{{ .pitch }}°, </span>
+                <span id="yaw">{{ .yaw }}°, </span>
+                <span id="roll">{{ .roll }}°</span>
             </div>
 
             <div class="readings">
                 <label>Status:</label>
-                <span id="status">Payload: {{ .PayloadPower }}</span>
-                <span id="status">Waiting for Data: {{ .dataWaiting }}</span>
+                <span id="payload-power">Payload: {{ .PayloadPower }}</span>
+                <span id="data-waiting">Waiting for Data: {{ .dataWaiting }}</span>
                 <br>
-                <span id="status">Charge Status: {{ .chargeStatus }}</span>
-                <span id="status">Current Voltage: {{ .voltage }}</span>
+                <span id="charge-status">Charge Status: {{ .chargeStatus }}</span>
+                <span id="voltage">Current Voltage: {{ .voltage }}</span>
 
             </div>
 
