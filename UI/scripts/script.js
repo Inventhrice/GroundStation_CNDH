@@ -51,8 +51,8 @@ setAngleBtn.addEventListener('click', function() {
 
 var updateURI = "http://localhost:8080/update";
 var update = new EventSource(updateventURI);
-update.addEventListener("message", function(Event) {
-    const telemetry = JSON.parse(Event.data);
+update.addEventListener("message", function(event) {
+    const telemetry = JSON.parse(event.data);
     document.getElementById("x-coordinate").innerText(telemetry.coordinates.x);
     document.getElementById("y-coordinate").innerText(telemetry.coordinates.y);
     document.getElementById("z-coordinate").innerText(telemetry.coordinates.z);

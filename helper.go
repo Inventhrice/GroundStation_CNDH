@@ -134,3 +134,19 @@ func serveFiles(c *gin.Context, contenttype string, path string) {
 		c.File(filename)
 	}
 }
+
+func broadcastUpdate() error { 
+    telemetry := readJSONFromFile
+    telemetryJSON, err := json.Marshall(telemetry)
+    if err != nil {
+        return err;
+    }
+    req, err := http.NewRequest(verb, "http://localhost:8080/update", telemetryJSON)
+    if err != nil {
+        return err;
+    }
+    res, err := http.DefaultClient.Do(req)
+    if err != nil {
+        return err;
+    }
+}
