@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -129,16 +131,21 @@ func executeScript(c *gin.Context) {
 
 	for i := 0; i < len(allRequests); i++ {
 		temp := allRequests[i]
-		req, err := http.NewRequest(temp.Verb, temp.URI, strings.NewReader(temp.Data))
+		var req *http.Request
+		if temp.Data != "" {
+			req, err = http.NewRequest(temp.Verb, temp.URI, bytes.NewBufferString(temp.Data))
+			req.Header.Set("content-type", "application/json")
+		} else {
+			req, err = http.NewRequest(temp.Verb, temp.URI, nil)
+		}
+
 		if err != nil {
 			fmt.Fprintln(writeLog, "Failed to make request ", temp.URI, " ", temp.URI)
 		} else {
-			if temp.Data != "" {
-				req.Header.Set("content-type", "application/json")
-			}
 			res, _ := http.DefaultClient.Do(req)
 			if res != nil {
-				fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", res.Body)
+				body, _ := io.ReadAll(res.Body)
+				fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", string(body))
 			} else {
 				fmt.Fprintln(writeLog, "Got a 500")
 			}
@@ -156,13 +163,11 @@ func getRoot(c *gin.Context) { // Root route reads from json file and puts the d
 func putTelemetry(c *gin.Context) {
 	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
-
 	// Attempt to parse the incoming request's JSON into the "data" struct
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-
 	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
 		c.JSON(400, gin.H{"error": writeErr.Error()})
@@ -243,8 +248,8 @@ func setupServer() *gin.Engine {
 	server.GET("/", getRoot)
 	server.GET("/scripts/:name", serveScripts)
 	server.GET("/styles/:name", serveCSS)
-	server.PUT("/telemetry/", putTelemetry)
-	server.GET("/telemetry/", getTelemetry)
+	server.PUT("/telemetry", putTelemetry)
+	server.GET("/telemetry", getTelemetry)
 	server.GET("/status", status)
 	server.PUT("/receive", receive)
 	server.GET("/execute/:script", executeScript)
