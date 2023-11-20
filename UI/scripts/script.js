@@ -50,20 +50,21 @@ setAngleBtn.addEventListener('click', function() {
 });
 
 var updateURI = "http://localhost:8080/update";
-var update = new EventSource(updateventURI);
+var update = new EventSource("/update");
 update.addEventListener("message", function(event) {
+    console.log("Update!");
     const telemetry = JSON.parse(event.data);
-    document.getElementById("x-coordinate").innerText(telemetry.coordinates.x);
-    document.getElementById("y-coordinate").innerText(telemetry.coordinates.y);
-    document.getElementById("z-coordinate").innerText(telemetry.coordinates.z);
-    document.getElementById("pitch").innerText(telemetry.rotations.p);
-    document.getElementById("yaw").innerText(telemetry.rotations.y);
-    document.getElementById("roll").innerText(telemetry.roations.r);
-    document.getElementById("temp").innerText(telemetry.temp);
-    document.getElementById("payload-power").innerText(telemetry.status.payloadPower);
-    document.getElementById("data-waiting").innerText(telemetry.status.dataWaiting);
-    document.getElementById("charge-status").innerText(telemetry.status.chargeStatus);
-    document.getElementById("voltage").innerText(telemetry.status.voltage);
+    document.getElementById("x-coordinate").innerHTML = telemetry.coordinates.x;
+    document.getElementById("y-coordinate").innerHTML = telemetry.coordinates.y;
+    document.getElementById("z-coordinate").innerHTML = telemetry.coordinates.z;
+    document.getElementById("pitch").innerHTML = telemetry.rotations.p;
+    document.getElementById("yaw").innerHTML = telemetry.rotations.y;
+    document.getElementById("roll").innerHTML = telemetry.rotations.r;
+    document.getElementById("temp").innerHTML = telemetry.temp;
+    document.getElementById("payload-power").innerHTML = telemetry.status.payloadPower;
+    document.getElementById("data-waiting").innerHTML = telemetry.status.dataWaiting;
+    document.getElementById("charge-status").innerHTML = telemetry.status.chargeStatus;
+    document.getElementById("voltage").innerHTML = telemetry.status.voltage;
 });
 
 window.addEventListener("beforeunload", function() {

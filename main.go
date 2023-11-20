@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strconv"
@@ -195,6 +196,32 @@ func getTelemetry(c *gin.Context) {
 	})
 }
 
+func updateClient(c *gin.Context) {
+	var clientStream chan string
+	go func() {
+		// Read JSON into clientStream
+		telemetry, err := readJSONFromFile()
+		if err != nil {
+			// ?
+		}
+		telemetryJSON, err := json.Marshal(telemetry)
+		if err != nil {
+			// ?
+		}
+		clientStream <- string(telemetryJSON)
+	}()
+
+	defer close(clientStream)
+	c.Stream(func(w io.Writer) bool {
+		if data, ok := <-clientStream; ok {
+			c.SSEvent("message", data)
+			return true
+		}
+		return false
+	})
+
+}
+
 func serveScripts(c *gin.Context) {
 	serveFiles(c, "text/javascript", "./UI/scripts/")
 }
@@ -248,6 +275,7 @@ func setupServer() *gin.Engine {
 	server.GET("/status", status)
 	server.PUT("/receive", receive)
 	server.GET("/execute/:script", executeScript)
+	server.GET("/update", updateClient)
 	return server
 }
 
