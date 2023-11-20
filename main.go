@@ -13,8 +13,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var listIPs = make(map[int]string)
-var clientStream = make(chan string)
+var (
+	listIPs = make(map[int]string)
+
+	clientList   = make(map[chan string]bool)
+	newClient    = make(chan chan string)
+	closedClient = make(chan chan string)
+)
 
 /*
 Example request.
@@ -172,11 +177,15 @@ func putTelemetry(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Data saved successfully!"})
 	}
 
+	fmt.Println("Data written to file")
+
 	dataJSON, err := json.Marshal(data)
-	if err != nil {
-		// ?
+	if err == nil {
+		for client := range clientList {
+			client <- string(dataJSON)
+		}
 	}
-	clientStream <- string(dataJSON)
+	//clientStream <- string(dataJSON)
 }
 
 func getTelemetry(c *gin.Context) {
@@ -207,12 +216,30 @@ func updateClient(c *gin.Context) {
 	c.Header("Content-Type", "text/event-stream")
 	c.Header("Connection", "keep-alive")
 	c.Header("Cache-Control", "no-cache")
+
+	client := make(chan string, 1)
+	newClient <- client
+	defer func() {
+		closedClient <- client
+	}()
+
 	c.Stream(func(w io.Writer) bool {
-		if data, ok := <-clientStream; ok {
+		select {
+		case data, ok := <-client:
+			if !ok {
+				return false
+			}
 			c.SSEvent("message", data)
 			return true
+
+		case <-c.Request.Context().Done():
+			return false
 		}
-		return false
+		//if data, ok := <-clientStream; ok {
+		//	c.SSEvent("message", data)
+		//	return true
+		//}
+		//return false
 	})
 }
 
@@ -274,6 +301,7 @@ func setupServer() *gin.Engine {
 }
 
 func main() {
+	go manageClientList()
 	temp, err := readIPCFG("ip.cfg")
 	if err == nil {
 		listIPs = temp

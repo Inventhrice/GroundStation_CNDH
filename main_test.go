@@ -28,6 +28,7 @@ func SetupTestServer() *gin.Engine {
 }
 
 func Test01_PutTelemetry_ValidInput(t *testing.T) {
+	go manageClientList()
 	// Create input data
 	coords := Coordinates{X: "1", Y: "1", Z: "1"}
 	rot := Rotations{P: "1", Y: "1", R: "1"}
@@ -40,10 +41,9 @@ func Test01_PutTelemetry_ValidInput(t *testing.T) {
 	}
 	body := bytes.NewReader(jsonData)
 
-	server := SetupTestServer()
-
-	req, _ := http.NewRequest("PUT", "/telemetry/", body)
+	req, _ := http.NewRequest("PUT", "/telemetry", body)
 	w := httptest.NewRecorder()
+	server := SetupTestServer()
 	server.ServeHTTP(w, req)
 	actual, _ := io.ReadAll(w.Body)
 	expectedBody := "{\"message\":\"Data saved successfully!\"}"
@@ -66,10 +66,10 @@ func Test01_PutTelemetry_ValidInput(t *testing.T) {
 }
 
 func Test02_PutTelemetry_InvalidInput(t *testing.T) {
-	server := SetupTestServer()
-
-	req, _ := http.NewRequest("PUT", "/telemetry/", nil)
+	go manageClientList()
+	req, _ := http.NewRequest("PUT", "/telemetry", nil)
 	w := httptest.NewRecorder()
+	server := SetupTestServer()
 	server.ServeHTTP(w, req)
 	actual, _ := io.ReadAll(w.Body)
 
@@ -83,7 +83,7 @@ func Test02_PutTelemetry_InvalidInput(t *testing.T) {
 func Test03_GetTelemetry_Valid(t *testing.T) {
 	server := SetupTestServer()
 
-	req, _ := http.NewRequest("GET", "/telemetry/", nil)
+	req, _ := http.NewRequest("GET", "/telemetry", nil)
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	actual, _ := io.ReadAll(w.Body)
