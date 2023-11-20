@@ -177,15 +177,12 @@ func putTelemetry(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Data saved successfully!"})
 	}
 
-	fmt.Println("Data written to file")
-
 	dataJSON, err := json.Marshal(data)
 	if err == nil {
 		for client := range clientList {
 			client <- string(dataJSON)
 		}
 	}
-	//clientStream <- string(dataJSON)
 }
 
 func getTelemetry(c *gin.Context) {
@@ -235,11 +232,6 @@ func updateClient(c *gin.Context) {
 		case <-c.Request.Context().Done():
 			return false
 		}
-		//if data, ok := <-clientStream; ok {
-		//	c.SSEvent("message", data)
-		//	return true
-		//}
-		//return false
 	})
 }
 
