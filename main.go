@@ -14,6 +14,7 @@ import (
 )
 
 var listIPs = make(map[int]string)
+var clientStream = make(chan string)
 
 /*
 Example request.
@@ -170,6 +171,12 @@ func putTelemetry(c *gin.Context) {
 	} else {
 		c.JSON(200, gin.H{"message": "Data saved successfully!"})
 	}
+
+	dataJSON, err := json.Marshal(data)
+	if err != nil {
+		// ?
+	}
+	clientStream <- string(dataJSON)
 }
 
 func getTelemetry(c *gin.Context) {
@@ -197,21 +204,9 @@ func getTelemetry(c *gin.Context) {
 }
 
 func updateClient(c *gin.Context) {
-	var clientStream chan string
-	go func() {
-		// Read JSON into clientStream
-		telemetry, err := readJSONFromFile()
-		if err != nil {
-			// ?
-		}
-		telemetryJSON, err := json.Marshal(telemetry)
-		if err != nil {
-			// ?
-		}
-		clientStream <- string(telemetryJSON)
-	}()
-
-	defer close(clientStream)
+	c.Header("Content-Type", "text/event-stream")
+	c.Header("Connection", "keep-alive")
+	c.Header("Cache-Control", "no-cache")
 	c.Stream(func(w io.Writer) bool {
 		if data, ok := <-clientStream; ok {
 			c.SSEvent("message", data)
@@ -219,7 +214,6 @@ func updateClient(c *gin.Context) {
 		}
 		return false
 	})
-
 }
 
 func serveScripts(c *gin.Context) {
@@ -270,8 +264,8 @@ func setupServer() *gin.Engine {
 	server.GET("/", getRoot)
 	server.GET("/scripts/:name", serveScripts)
 	server.GET("/styles/:name", serveCSS)
-	server.PUT("/telemetry/", putTelemetry)
-	server.GET("/telemetry/", getTelemetry)
+	server.PUT("/telemetry", putTelemetry)
+	server.GET("/telemetry", getTelemetry)
 	server.GET("/status", status)
 	server.PUT("/receive", receive)
 	server.GET("/execute/:script", executeScript)

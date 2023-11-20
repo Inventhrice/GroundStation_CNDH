@@ -49,11 +49,11 @@ setAngleBtn.addEventListener('click', function() {
     }
 });
 
-var updateURI = "http://localhost:8080/update";
 var update = new EventSource("/update");
-update.addEventListener("message", function(event) {
-    console.log("Update!");
+update.onmessage = event => {
+    console.log("Updated telemetry");
     const telemetry = JSON.parse(event.data);
+    console.log("Received JSON: ", telemetry);
     document.getElementById("x-coordinate").innerHTML = telemetry.coordinates.x;
     document.getElementById("y-coordinate").innerHTML = telemetry.coordinates.y;
     document.getElementById("z-coordinate").innerHTML = telemetry.coordinates.z;
@@ -65,7 +65,7 @@ update.addEventListener("message", function(event) {
     document.getElementById("data-waiting").innerHTML = telemetry.status.dataWaiting;
     document.getElementById("charge-status").innerHTML = telemetry.status.chargeStatus;
     document.getElementById("voltage").innerHTML = telemetry.status.voltage;
-});
+};
 
 window.addEventListener("beforeunload", function() {
     update.close();
