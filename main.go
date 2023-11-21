@@ -246,6 +246,20 @@ func serveCSS(c *gin.Context) {
 	serveFiles(c, "text/css", "./UI/styles/")
 }
 
+func requestTelemetry(c *gin.Context) {
+	c.Header("content-type", "application/json")
+	uri := fmt.Sprintf("http://%s:8080/send/", listIPs[3])
+
+	// Create JSON
+	json := "{\"verb\":\"GET\",\"uri\":\"http://" + listIPs[3] + ":8080/send/\"}"
+	body := strings.NewReader(json)
+
+	res, err := http.NewRequest("POST", uri, body)
+	if err == nil {
+		defer res.Body.Close()
+	}
+}
+
 func status(c *gin.Context) {
 	uri := fmt.Sprintf("http://%s:8080/status", listIPs[4])
 
@@ -292,6 +306,7 @@ func setupServer() *gin.Engine {
 	server.PUT("/receive", receive)
 	server.GET("/execute/:script", executeScript)
 	server.GET("/update", updateClient)
+	server.GET("/requestTelemetry", requestTelemetry)
 	return server
 }
 
