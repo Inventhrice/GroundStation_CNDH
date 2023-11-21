@@ -24,11 +24,11 @@ func makeTestListIP() map[int]string {
 func SetupTestServer() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	server := setupServer()
+	go manageClientList()
 	return server
 }
 
 func Test01_PutTelemetry_ValidInput(t *testing.T) {
-	go manageClientList()
 	// Create input data
 	coords := Coordinates{X: "1", Y: "1", Z: "1"}
 	rot := Rotations{P: "1", Y: "1", R: "1"}
@@ -65,7 +65,6 @@ func Test01_PutTelemetry_ValidInput(t *testing.T) {
 }
 
 func Test02_PutTelemetry_InvalidInput(t *testing.T) {
-	go manageClientList()
 	req, _ := http.NewRequest("PUT", "/telemetry", nil)
 	w := httptest.NewRecorder()
 	server := SetupTestServer()

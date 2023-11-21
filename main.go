@@ -15,8 +15,7 @@ import (
 )
 
 var (
-	listIPs = make(map[int]string)
-
+	listIPs      = make(map[int]string)
 	clientList   = make(map[chan string]bool)
 	newClient    = make(chan chan string)
 	closedClient = make(chan chan string)
