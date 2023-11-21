@@ -134,3 +134,15 @@ func serveFiles(c *gin.Context, contenttype string, path string) {
 		c.File(filename)
 	}
 }
+
+func manageClientList() {
+	for {
+		select {
+		case client := <-newClient:
+			clientList[client] = true
+		case client := <-closedClient:
+			delete(clientList, client)
+			close(client)
+		}
+	}
+}

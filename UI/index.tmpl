@@ -20,30 +20,30 @@
             <h2>Current Ship Readings: </h2>
             <div class="readings">
                 <label>Co-ordinates:</label>
-                <span id="x-coordinate">{{ .coordsX }}, </span>
-                <span id="y-coordinate">{{ .coordsY }}, </span>
-                <span id="z-coordinate">{{ .coordsZ }}</span>
+                <span class="readings-item" id="x-coordinate">{{ .coordsX }}, </span>
+                <span class="readings-item" id="y-coordinate">{{ .coordsY }}, </span>
+                <span class="readings-item" id="z-coordinate">{{ .coordsZ }}</span>
             </div>
 
             <div class="readings">
                 <label>Temperature:</label>
-                <span id="temp">{{ .temp }} °C</span>
+                <span class="readings-item" id="temp">{{ .temp }} °C</span>
             </div>
 
             <div class="readings">
                 <label>Angle (Pitch/Yaw/Roll):</label>
-                <span id="angle">{{ .pitch }}°, </span>
-                <span id="angle">{{ .yaw }}°, </span>
-                <span id="angle">{{ .roll }}°</span>
+                <span class="readings-item" id="pitch">{{ .pitch }}°, </span>
+                <span class="readings-item" id="yaw">{{ .yaw }}°, </span>
+                <span class="readings-item" id="roll">{{ .roll }}°</span>
             </div>
 
             <div class="readings">
                 <label>Status:</label>
-                <span id="status">Payload: {{ .PayloadPower }}</span>
-                <span id="status">Waiting for Data: {{ .dataWaiting }}</span>
+                <span class="readings-item" id="payload-power">Payload: {{ .PayloadPower }}</span>
+                <span class="readings-item" id="data-waiting">Waiting for Data: {{ .dataWaiting }}</span>
                 <br>
-                <span id="status">Charge Status: {{ .chargeStatus }}</span>
-                <span id="status">Current Voltage: {{ .voltage }}</span>
+                <span class="readings-item" id="charge-status">Charge Status: {{ .chargeStatus }}</span>
+                <span class="readings-item" id="voltage">Current Voltage: {{ .voltage }}</span>
 
             </div>
 

@@ -78,12 +78,7 @@ button:hover
     margin-top: 1.5rem; 
 }
 
-#x-coordinate,
-#y-coordinate,
-#z-coordinate,
-#temp,
-#angle,
-#status 
+.readings-item
 {
     margin-right: 0.5rem;
 }
