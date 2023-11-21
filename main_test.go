@@ -40,7 +40,6 @@ func Test01_PutTelemetry_ValidInput(t *testing.T) {
 		t.Fatal(err)
 	}
 	body := bytes.NewReader(jsonData)
-
 	req, _ := http.NewRequest("PUT", "/telemetry", body)
 	w := httptest.NewRecorder()
 	server := SetupTestServer()
@@ -173,13 +172,13 @@ func Test08_Root(t *testing.T) {
 	_, err := readIPCFG("ip.cfg")
 
 	assert.Equal(t, nil, err)
-}
+}*/
 
 func Test10_readIPCFG_Invalid(t *testing.T) {
 
 	_, err := readIPCFG("nilpath.cfg")
 	assert.Equal(t, "open nilpath.cfg: no such file or directory", err.Error())
-} */
+}
 
 func Test11_executeScript_Valid(t *testing.T) {
 	expectedCode := 200
