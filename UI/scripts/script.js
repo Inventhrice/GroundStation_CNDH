@@ -54,17 +54,17 @@ update.onmessage = event => {
     console.log("Updated telemetry");
     const telemetry = JSON.parse(event.data);
     console.log("Received JSON: ", telemetry);
-    document.getElementById("x-coordinate").innerHTML = telemetry.coordinates.x;
-    document.getElementById("y-coordinate").innerHTML = telemetry.coordinates.y;
+    document.getElementById("x-coordinate").innerHTML = telemetry.coordinates.x + ", ";
+    document.getElementById("y-coordinate").innerHTML = telemetry.coordinates.y+ ", ";
     document.getElementById("z-coordinate").innerHTML = telemetry.coordinates.z;
-    document.getElementById("pitch").innerHTML = telemetry.rotations.p;
-    document.getElementById("yaw").innerHTML = telemetry.rotations.y;
-    document.getElementById("roll").innerHTML = telemetry.rotations.r;
-    document.getElementById("temp").innerHTML = telemetry.temp;
-    document.getElementById("payload-power").innerHTML = telemetry.status.payloadPower;
-    document.getElementById("data-waiting").innerHTML = telemetry.status.dataWaiting;
-    document.getElementById("charge-status").innerHTML = telemetry.status.chargeStatus;
-    document.getElementById("voltage").innerHTML = telemetry.status.voltage;
+    document.getElementById("pitch").innerHTML = telemetry.rotations.p + "°, ";
+    document.getElementById("yaw").innerHTML = telemetry.rotations.y + "°, ";
+    document.getElementById("roll").innerHTML = telemetry.rotations.r+ "°";
+    document.getElementById("temp").innerHTML = telemetry.temp + " °C";
+    document.getElementById("payload-power").innerHTML = "Payload: " + telemetry.status.payloadPower;
+    document.getElementById("data-waiting").innerHTML = "Waiting for Data: " + telemetry.status.dataWaiting;
+    document.getElementById("charge-status").innerHTML = "Charge Status: " + telemetry.status.chargeStatus;
+    document.getElementById("voltage").innerHTML = "Current Voltage: " + telemetry.status.voltage;
 };
 
 window.addEventListener("beforeunload", function() {
