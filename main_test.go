@@ -194,7 +194,7 @@ func Test10_readIPCFG_Invalid(t *testing.T) {
 	serverLogger = mockLogger
 
 	_, err := readIPCFG("nilpath.cfg")
-	assert.Equal(t, "open nilpath.cfg: The system cannot find the file specified", err.Error())
+	assert.Equal(t, "open nilpath.cfg: no such file or directory", err.Error())
 }
 
 func Test11_executeScript_Valid(t *testing.T) {
