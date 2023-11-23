@@ -33,6 +33,7 @@ func receive(c *gin.Context) {
 	}
 
 	// Parse the IP from the RedirectRequest
+	req.URI = strings.Trim(req.URI, "http://")
 	parts := strings.Split(req.URI, "/")
 	if len(parts) != 2 {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -99,7 +100,6 @@ func receive(c *gin.Context) {
 		sendRedirectRequest(c, "POST", uri, data)
 		return
 	}
-
 	// If we're here, we don't have a valid IP address
 	//
 	// Note: This could mean we were the IP address and it's
