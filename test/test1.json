@@ -1,10 +1,10 @@
 {
-    "coordinates": {
+    "coordinate": {
         "x": "1",
         "y": "1",
         "z": "1"
     },
-    "rotations": {
+    "rotation": {
         "p": "1",
         "y": "1",
         "r": "1"
