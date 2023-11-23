@@ -19,6 +19,7 @@ func sendRedirectRequest(c *gin.Context, verb string, uri string, data []byte) {
 
 	r, err := http.NewRequest(verb, "http://"+uri, reader)
 	if err != nil {
+		serverLogger.Println("Error creating redirect request:", err)
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -32,6 +33,7 @@ func sendRedirectRequest(c *gin.Context, verb string, uri string, data []byte) {
 	}
 	resp, err := client.Do(r)
 	if err != nil {
+		serverLogger.Println("Error sending redirect request:", err)
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -44,6 +46,7 @@ func sendRedirectRequest(c *gin.Context, verb string, uri string, data []byte) {
 func parseScript(scriptName string) (map[int]RedirectRequest, error) {
 	f, err := os.Open("scripts/" + scriptName + ".txt")
 	if err != nil {
+		serverLogger.Println("Error reading script from file:", err)
 		return nil, err
 	}
 
@@ -86,6 +89,7 @@ func readJSONFromFile() (TelemetryData, error) {
 
 	file, err := os.Open(filename)
 	if err != nil {
+		serverLogger.Println("Error reading from file:", err)
 		return data, err
 	}
 	defer file.Close()
@@ -94,6 +98,7 @@ func readJSONFromFile() (TelemetryData, error) {
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&data)
 	if err != nil {
+		serverLogger.Println("Error decoding JSON data:", err)
 		return data, err
 	}
 
@@ -104,6 +109,7 @@ func writeJSONToFile(data TelemetryData) error {
 	filename := "telemetry.json"
 	file, err := os.Create(filename)
 	if err != nil {
+		serverLogger.Println("Error creating file:", err)
 		return err
 	}
 	defer file.Close()
@@ -111,12 +117,14 @@ func writeJSONToFile(data TelemetryData) error {
 	// Convert TelemetryData to JSON
 	dataJSON, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
+		serverLogger.Println("Error marshalling json data:", err)
 		return err
 	}
 
 	// Write JSON data to the file
 	_, err = file.Write(dataJSON)
 	if err != nil {
+		serverLogger.Println("Error writing to file:", err)
 		return err
 	}
 
@@ -128,6 +136,7 @@ func serveFiles(c *gin.Context, contenttype string, path string) {
 	filename = path + filename
 	_, err := os.Open(filename)
 	if err != nil {
+		serverLogger.Println("Error serving files:", err)
 		c.JSON(404, gin.H{"error": err.Error()})
 	} else {
 		c.Header("Content-Type", contenttype)

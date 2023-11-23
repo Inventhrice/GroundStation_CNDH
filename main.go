@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -21,6 +22,8 @@ var (
 	closedClient = make(chan chan string)
 )
 
+var serverLogger *log.Logger
+
 /*
 Example request.
 
@@ -34,10 +37,16 @@ func receive(c *gin.Context) {
 	// Attempt to parse the incoming request's JSON into the "data" struct
 	var req RedirectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		serverLogger.Println("Error binding JSON data to req variable:", err)
+
 		// Abort internally stops Gin from contiuing to handle the request
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+
+	// Log the JSON data if successfully binded
+	requestData, _ := json.Marshal(req)
+	serverLogger.Println("Received request JSON data:", string(requestData))
 
 	// Parse the IP from the RedirectRequest
 	parts := strings.Split(req.URI, "/")
@@ -55,6 +64,7 @@ func receive(c *gin.Context) {
 	//}
 	sourceID, err := strconv.Atoi(stringID)
 	if err != nil {
+		serverLogger.Println("Error converting source id to int:", err)
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -85,9 +95,13 @@ func receive(c *gin.Context) {
 		// Recreate the request data
 		data, err := json.Marshal(req)
 		if err != nil {
+			serverLogger.Println("Error recreating the request data:", err)
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
+
+		//Print out the data we intend to send to log file
+		serverLogger.Println("Request JSON data that is being redirected:", string(data))
 
 		// Send the request
 		sendRedirectRequest(c, "POST", uri, data)
@@ -99,6 +113,7 @@ func receive(c *gin.Context) {
 		// Recreate the request data
 		data, err := json.Marshal(req)
 		if err != nil {
+			serverLogger.Println("Error recreating the request data:", err)
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
@@ -121,6 +136,7 @@ func executeScript(c *gin.Context) {
 
 	writeLog, err := os.Create("scriptOutput.log")
 	if err != nil {
+		serverLogger.Println("Error creating script outpute file:", err)
 		c.AbortWithStatusJSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -170,11 +186,17 @@ func putTelemetry(c *gin.Context) {
 	var data TelemetryData // Create an empty TelemetryData struct
 	// Attempt to parse the incoming request's JSON into the "data" struct
 	if err := c.ShouldBindJSON(&data); err != nil {
+		serverLogger.Println("Error binding JSON to data variable:", err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Log the JSON data if successfully binded
+	serverLogger.Println("Received JSON data:", TelemetryData(data))
+
 	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
+		serverLogger.Println("Error writing JSON data to file:", writeErr)
 		c.JSON(400, gin.H{"error": writeErr.Error()})
 	} else {
 		c.JSON(200, gin.H{"message": "Data saved successfully!"})
@@ -295,8 +317,22 @@ func setupServer() *gin.Engine {
 	return server
 }
 
+func initLogger() {
+	// Create log file
+	serverLogFile, err := os.Create("server.log")
+	if err != nil {
+		log.Fatal("Error creating request log file: ", err)
+	}
+
+	// Initialize global loggers
+	serverLogger = log.New(serverLogFile, "", log.LstdFlags)
+}
+
 func main() {
 	go manageClientList()
+
+	initLogger()
+
 	temp, err := readIPCFG("ip.cfg")
 	if err == nil {
 		listIPs = temp
