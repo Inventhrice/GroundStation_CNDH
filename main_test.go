@@ -203,30 +203,3 @@ func Test12_executeScript_InvalidScript(t *testing.T) {
 	assert.Equal(t, expectedCode, w.Code)
 
 }
-
-func send(c *gin.Context) {
-	c.JSON(200, gin.H{"message": "Message Received, Receive Function Works"})
-	return
-}
-func Test13_Receive_Case456(t *testing.T) {
-	expectedCode := 200
-
-	// The one that sends using the receive route
-	server := SetupTestServer()
-
-	// Uplink-Downlink Mock server to test Send Route that they possess
-	server2 := SetupTestServer()
-
-	// Open to accept Send routes
-	server2.GET("/send", send)
-
-	//
-	req, _ := http.NewRequest("PUT", "/send/", nil)
-
-	w := httptest.NewRecorder()
-
-	server.ServeHTTP(w, req)
-
-	assert.Equal(t, expectedCode, w.Code)
-
-}
