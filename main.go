@@ -248,10 +248,10 @@ func serveCSS(c *gin.Context) {
 
 func requestTelemetry(c *gin.Context) {
 	c.Header("content-type", "application/json")
-	uri := fmt.Sprintf("http://%s:8080/send/", listIPs[3])
+	uri := fmt.Sprintf("http://%s:8080/send/", listIPs[4])
 
 	// Create JSON
-	json := "{\"verb\":\"GET\",\"uri\":\"http://" + listIPs[3] + ":8080/send/\"}"
+	json := "{\"verb\":\"GET\",\"uri\":\"http://" + listIPs[2] + ":8080/send/\"}"
 	body := strings.NewReader(json)
 
 	res, err := http.NewRequest("POST", uri, body)
