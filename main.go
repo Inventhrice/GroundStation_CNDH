@@ -254,7 +254,7 @@ func requestTelemetry(c *gin.Context) {
 	body := strings.NewReader(json)
 
 	res, err := http.NewRequest("POST", uri, body)
-	if err == nil {
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 	defer res.Body.Close()
