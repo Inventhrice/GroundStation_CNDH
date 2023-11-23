@@ -182,7 +182,7 @@ func putTelemetry(c *gin.Context) {
 		return
 	}
 
-	if id == "1" {
+	if id == "1" { // Only change the data that has been changed
 		existingData.Coordinates = data.Coordinates
 		existingData.Rotations = data.Rotations
 	} else if id == "2" {
@@ -199,21 +199,34 @@ func putTelemetry(c *gin.Context) {
 		return
 	}
 
-	dataJSON, err := json.Marshal(existingData)
+	dataJSON, err := json.Marshal(existingData) // Marshall existing data for clients to display
 	if err == nil {
 		for client := range clientList {
 			client <- string(dataJSON)
 		}
 	}
 
-	ipAddress := listIPs[4]
+	destAddress := listIPs[2] // Ip for Space CNDH
 
-	respCode, sendErr := sendTelemetry(c, existingData, ipAddress)
+	newData := map[string]interface{}{ // Add on the necessary information (Its possible verb isn't needed here?)
+		"verb": "POST",
+		"uri":  "http://" + destAddress + ":8080/telemetry/?id=5",
+	}
+
+	combinedData := map[string]interface{}{ // Combine the new json data with the telemetry data
+		"verb": newData["verb"],
+		"uri":  newData["uri"],
+		"data": existingData,
+	}
+
+	sendAddress := listIPs[4] // Ip for Ground Uplink/Downlink
+
+	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
 	if sendErr != nil {
-		c.JSON(400, gin.H{"error": writeErr.Error()})
+		c.JSON(respCode, gin.H{"error": sendErr.Error()})
 		return
 	} else {
-		c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"})
+		c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"}) // Should be 200 if everything went properly within the sendTelemetry function (400 if timeout)
 		return
 	}
 }
