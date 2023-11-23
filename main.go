@@ -166,21 +166,39 @@ func getRoot(c *gin.Context) { // Root route reads from json file and puts the d
 }
 
 func putTelemetry(c *gin.Context) {
-	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
+	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
+
 	// Attempt to parse the incoming request's JSON into the "data" struct
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	writeErr := writeJSONToFile(data) // Write new data to JSON
+
+	// Read existing data from the file
+	existingData, err := readJSONFromFile()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	if id == "1" {
+		existingData.Coordinates = data.Coordinates
+		existingData.Rotations = data.Rotations
+	} else if id == "2" {
+		existingData.Coordinates = data.Coordinates
+	} else if id == "3" {
+		existingData.Rotations = data.Rotations
+	}
+
+	writeErr := writeJSONToFile(existingData) // Write new data to JSON
 	if writeErr != nil {
 		c.JSON(400, gin.H{"error": writeErr.Error()})
 	} else {
 		c.JSON(200, gin.H{"message": "Data saved successfully!"})
 	}
 
-	dataJSON, err := json.Marshal(data)
+	dataJSON, err := json.Marshal(existingData)
 	if err == nil {
 		for client := range clientList {
 			client <- string(dataJSON)
