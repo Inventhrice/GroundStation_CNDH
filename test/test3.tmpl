@@ -20,69 +20,69 @@
             <h2>Current Ship Readings: </h2>
             <div class="readings">
                 <label>Co-ordinates:</label>
-                <span class="readings-item" id="x-coordinate">1, </span>
-                <span class="readings-item" id="y-coordinate">1, </span>
-                <span class="readings-item" id="z-coordinate">1</span>
+                <span class="readings-item" id="x-coordinate">{{ .coordsX }}, </span>
+                <span class="readings-item" id="y-coordinate">{{ .coordsY }}, </span>
+                <span class="readings-item" id="z-coordinate">{{ .coordsZ }}</span>
             </div>
 
             <div class="readings">
                 <label>Temperature:</label>
-                <span class="readings-item" id="temp"> °C</span>
+                <span class="readings-item" id="temp">{{ .temp }} °C</span>
             </div>
 
             <div class="readings">
                 <label>Angle (Pitch/Yaw/Roll):</label>
-                <span class="readings-item" id="pitch">1°, </span>
-                <span class="readings-item" id="yaw">1°, </span>
-                <span class="readings-item" id="roll">1°</span>
+                <span class="readings-item" id="pitch">{{ .pitch }}°, </span>
+                <span class="readings-item" id="yaw">{{ .yaw }}°, </span>
+                <span class="readings-item" id="roll">{{ .roll }}°</span>
             </div>
 
             <div class="readings">
                 <label>Status:</label>
-                <span class="readings-item" id="payload-power">Payload: </span>
-                <span class="readings-item" id="data-waiting">Waiting for Data: </span>
+                <span class="readings-item" id="payload-power">Payload: {{ .PayloadPower }}</span>
+                <span class="readings-item" id="data-waiting">Waiting for Data: {{ .dataWaiting }}</span>
                 <br>
-                <span class="readings-item" id="charge-status">Charge Status: </span>
-                <span class="readings-item" id="voltage">Current Voltage: </span>
+                <span class="readings-item" id="charge-status">Charge Status: {{ .chargeStatus }}</span>
+                <span class="readings-item" id="voltage">Current Voltage: {{ .voltage }}</span>
 
             </div>
 
-        </div>
-
-        <div class="coordinate-input-container">
-            <h2>Co-ordinate Input:</h2>
-            <div class="coordinate-input">
-                <input type="number" placeholder="X">
-                <input type="number" placeholder="Y">
-                <input type="number" placeholder="Z">
-            </div>
-            <button id="sendCommandBtn">Send Command</button>
         </div>
 
         <div class="telemetry-input-container">
             <h2>Co-ordinate Input:</h2>
             <div class="coordinate-input">
-                <input type="number" placeholder="X">
-                <input type="number" placeholder="Y">
-                <input type="number" placeholder="Z">
+                <input type="number" id="coordX" placeholder="X">
+                <input type="number" id="coordY" placeholder="Y">
+                <input type="number" id="coordZ" placeholder="Z">
             </div>
             <h2>Angle Input:</h2>
             <div class="angle-input">
-                <input type="number" placeholder="Pitch">
-                <input type="number" placeholder="Yaw">
-                <input type="number" placeholder="Roll">
+                <input type="number" id="anglePitch" placeholder="Pitch">
+                <input type="number" id="angleYaw" placeholder="Yaw">
+                <input type="number" id="angleRoll" placeholder="Roll">
             </div>
             <button id="sendCommandBtn">Send Command</button>
+        </div>
+
+        <div class="coordinate-input-container">
+            <h2>Co-ordinate Input:</h2>
+            <div class="coordinate-input">
+                <input type="number" id="coordX2" placeholder="X">
+                <input type="number" id="coordY2" placeholder="Y">
+                <input type="number" id="coordZ2" placeholder="Z">
+            </div>
+            <button id="sendCommandBtn2">Send Command</button>
         </div>
 
         <div class="angle-input-container">
             <h2>Angle Input:</h2>
             <div class="angle-input">
-                <input type="number" placeholder="Pitch">
-                <input type="number" placeholder="Yaw">
-                <input type="number" placeholder="Roll">
+                <input type="number" id="anglePitch2" placeholder="Pitch">
+                <input type="number" id="angleYaw2" placeholder="Yaw">
+                <input type="number" id="angleRoll2" placeholder="Roll">
             </div>
-            <button id="sendCommandBtn">Send Command</button>
+            <button id="sendCommandBtn3">Send Command</button>
         </div>
 
         <div class="controls">
