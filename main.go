@@ -40,6 +40,7 @@ func receive(c *gin.Context) {
 	}
 
 	// Parse the IP from the RedirectRequest
+	req.URI = strings.Trim(req.URI, "http://")
 	parts := strings.Split(req.URI, "/")
 	if len(parts) != 2 {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -106,7 +107,6 @@ func receive(c *gin.Context) {
 		sendRedirectRequest(c, "POST", uri, data)
 		return
 	}
-
 	// If we're here, we don't have a valid IP address
 	//
 	// Note: This could mean we were the IP address and it's
@@ -310,6 +310,21 @@ func serveCSS(c *gin.Context) {
 	serveFiles(c, "text/css", "./UI/styles/")
 }
 
+func requestTelemetry(c *gin.Context) {
+	uri := fmt.Sprintf("http://%s:8080/send/", listIPs[4])
+
+	// Create JSON
+	json := "{\"verb\":\"GET\",\"uri\":\"http://" + listIPs[2] + ":8080/send/\"}"
+	body := strings.NewReader(json)
+
+	res, err := http.NewRequest("POST", uri, body)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	defer res.Body.Close()
+	c.JSON(http.StatusOK, gin.H{"message": "Telemetry requested"})
+}
+
 func status(c *gin.Context) {
 	uri := fmt.Sprintf("http://%s:8080/status/", listIPs[4])
 
@@ -356,6 +371,7 @@ func setupServer() *gin.Engine {
 	server.PUT("/receive", receive)
 	server.GET("/execute/:script", executeScript)
 	server.GET("/update", updateClient)
+	server.GET("/requestTelemetry", requestTelemetry)
 	return server
 }
 
