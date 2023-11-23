@@ -247,7 +247,6 @@ func serveCSS(c *gin.Context) {
 }
 
 func requestTelemetry(c *gin.Context) {
-	c.Header("content-type", "application/json")
 	uri := fmt.Sprintf("http://%s:8080/send/", listIPs[4])
 
 	// Create JSON
@@ -256,8 +255,10 @@ func requestTelemetry(c *gin.Context) {
 
 	res, err := http.NewRequest("POST", uri, body)
 	if err == nil {
-		defer res.Body.Close()
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
+	defer res.Body.Close()
+	c.JSON(http.StatusOK, gin.H{"message": "Telemetry requested"})
 }
 
 func status(c *gin.Context) {
