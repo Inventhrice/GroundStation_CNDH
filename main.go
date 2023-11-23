@@ -169,12 +169,6 @@ func putTelemetry(c *gin.Context) {
 	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
 
-	// Attempt to parse the incoming request's JSON into the "data" struct
-	if err := c.ShouldBindJSON(&data); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
 	// Read existing data from the file
 	existingData, err := readJSONFromFile()
 	if err != nil {
@@ -189,6 +183,12 @@ func putTelemetry(c *gin.Context) {
 		existingData.Coordinates = data.Coordinates
 	} else if id == "3" {
 		existingData.Rotations = data.Rotations
+	} else {
+		// Attempt to parse the incoming request's JSON into the "data" struct	--	This is for if Ground teams 6 or 7 send put telemetry data?
+		if err := c.ShouldBindJSON(&existingData); err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
 	}
 
 	writeErr := writeJSONToFile(existingData) // Write new data to JSON
