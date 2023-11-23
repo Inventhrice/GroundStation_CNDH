@@ -146,3 +146,35 @@ func manageClientList() {
 		}
 	}
 }
+
+func sendTelemetry(c *gin.Context, existingData TelemetryData, ipAddress string) (int, error) {
+
+	// Convert TelemetryData to JSON
+	dataJSON, marshErr := json.Marshal(existingData)
+	if marshErr != nil {
+		return 0, marshErr
+	}
+
+	// Send a PUT request to the specified IP address
+	client := &http.Client{}
+	url := "http://" + ipAddress + ":8080/send/" // Update the URL endpoint accordingly
+
+	req, dataErr := http.NewRequest("POST", url, bytes.NewBuffer(dataJSON))
+	if dataErr != nil {
+		return 0, dataErr
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, respErr := client.Do(req)
+	if respErr != nil {
+		return 0, respErr
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return resp.StatusCode, respErr
+	}
+
+	return resp.StatusCode, nil
+}

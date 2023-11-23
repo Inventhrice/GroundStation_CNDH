@@ -169,10 +169,16 @@ func putTelemetry(c *gin.Context) {
 	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
 
+	// Attempt to parse the incoming request's JSON into the "data" struct	--	This is for if Ground teams 6 or 7 send put telemetry data?
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
 	// Read existing data from the file
 	existingData, err := readJSONFromFile()
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -184,18 +190,13 @@ func putTelemetry(c *gin.Context) {
 	} else if id == "3" {
 		existingData.Rotations = data.Rotations
 	} else {
-		// Attempt to parse the incoming request's JSON into the "data" struct	--	This is for if Ground teams 6 or 7 send put telemetry data?
-		if err := c.ShouldBindJSON(&existingData); err != nil {
-			c.JSON(400, gin.H{"error": err.Error()})
-			return
-		}
+		existingData = data
 	}
 
 	writeErr := writeJSONToFile(existingData) // Write new data to JSON
 	if writeErr != nil {
 		c.JSON(400, gin.H{"error": writeErr.Error()})
-	} else {
-		c.JSON(200, gin.H{"message": "Data saved successfully!"})
+		return
 	}
 
 	dataJSON, err := json.Marshal(existingData)
@@ -203,6 +204,17 @@ func putTelemetry(c *gin.Context) {
 		for client := range clientList {
 			client <- string(dataJSON)
 		}
+	}
+
+	ipAddress := listIPs[4]
+
+	respCode, sendErr := sendTelemetry(c, existingData, ipAddress)
+	if sendErr != nil {
+		c.JSON(400, gin.H{"error": writeErr.Error()})
+		return
+	} else {
+		c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"})
+		return
 	}
 }
 
@@ -311,20 +323,6 @@ func setupServer() *gin.Engine {
 	server.GET("/execute/:script", executeScript)
 	server.GET("/update", updateClient)
 	return server
-}
-
-func setTelemetry(c *gin.Context) {
-	c.Header("content-type", "application/json")
-	uri := fmt.Sprintf("http://%s:8080/send/", listIPs[4])
-
-	// Create JSON
-	json := "{\"verb\":\"GET\",\"uri\":\"http://" + listIPs[2] + ":8080/send/\"}"
-	body := strings.NewReader(json)
-
-	res, err := http.NewRequest("POST", uri, body)
-	if err == nil {
-		defer res.Body.Close()
-	}
 }
 
 func main() {
