@@ -228,7 +228,7 @@ func setTelemetry(c *gin.Context) {
 		"data": newData,
 	}
 
-	sendAddress := listIPs[5] // Ip for Ground Uplink/Downlink
+	sendAddress := listIPs[4] // Ip for Ground Uplink/Downlink
 
 	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
 	if sendErr != nil {
@@ -311,7 +311,7 @@ func serveCSS(c *gin.Context) {
 }
 
 func status(c *gin.Context) {
-	uri := fmt.Sprintf("http://%s:8080/status", listIPs[4])
+	uri := fmt.Sprintf("http://%s:8080/status/", listIPs[4])
 
 	// Error handling not implemented on purpose because
 	// "An error is returned if there were too many redirects or if there was an HTTP protocol error.
@@ -326,7 +326,6 @@ func status(c *gin.Context) {
 
 	//returns the status code and the body in a raw format
 	c.JSON(res.StatusCode, body)
-
 }
 
 func readIPCFG(path string) (map[int]string, error) {
