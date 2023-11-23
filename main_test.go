@@ -176,7 +176,7 @@ func Test08_Root(t *testing.T) {
 func Test10_readIPCFG_Invalid(t *testing.T) {
 
 	_, err := readIPCFG("nilpath.cfg")
-	assert.Equal(t, "open nilpath.cfg: no such file or directory", err.Error())
+	assert.Equal(t, "open nilpath.cfg: The system cannot find the file specified", err.Error())
 }
 
 func Test11_executeScript_Valid(t *testing.T) {
