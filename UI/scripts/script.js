@@ -102,7 +102,7 @@ sendCommandBtn.addEventListener('click', function() {
     };
 
     const request = new XMLHttpRequest();
-    const url = 'http://localhost:8080/telemetry?id=1'
+    const url = 'http://localhost:8080/settelemetry?id=1'
     request.open("PUT", url);
     request.send(JSON.stringify(formData));
 
@@ -135,7 +135,7 @@ sendCommandBtn2.addEventListener('click', function() {
     };
 
     const request = new XMLHttpRequest();
-    const url = 'http://localhost:8080/telemetry?id=2'
+    const url = 'http://localhost:8080/settelemetry?id=2'
     request.open("PUT", url);
     request.send(JSON.stringify(formData));
 
@@ -168,7 +168,7 @@ sendCommandBtn3.addEventListener('click', function() {
     };
 
     const request = new XMLHttpRequest();
-    const url = 'http://localhost:8080/telemetry?id=3'
+    const url = 'http://localhost:8080/settelemetry?id=3'
     request.open("PUT", url);
     request.send(JSON.stringify(formData));
 

@@ -166,10 +166,32 @@ func getRoot(c *gin.Context) { // Root route reads from json file and puts the d
 }
 
 func putTelemetry(c *gin.Context) {
-	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
+	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
+	var data TelemetryData // Create an empty TelemetryData struct
+	// Attempt to parse the incoming request's JSON into the "data" struct
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	writeErr := writeJSONToFile(data) // Write new data to JSON
+	if writeErr != nil {
+		c.JSON(400, gin.H{"error": writeErr.Error()})
+	} else {
+		c.JSON(200, gin.H{"message": "Data saved successfully!"})
+	}
+
+	dataJSON, err := json.Marshal(data)
+	if err == nil {
+		for client := range clientList {
+			client <- string(dataJSON)
+		}
+	}
+}
+
+func setTelemetry(c *gin.Context) {
+	id := c.Query("id")    // Extract the ID from the URL path
 	var data TelemetryData // Create an empty TelemetryData struct
 
-	// Attempt to parse the incoming request's JSON into the "data" struct	--	This is for if Ground teams 6 or 7 send put telemetry data?
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -182,52 +204,51 @@ func putTelemetry(c *gin.Context) {
 		return
 	}
 
+	newData := existingData
+
 	if id == "1" { // Only change the data that has been changed
-		existingData.Coordinates = data.Coordinates
-		existingData.Rotations = data.Rotations
+		newData.Coordinates = data.Coordinates
+		newData.Rotations = data.Rotations
 	} else if id == "2" {
-		existingData.Coordinates = data.Coordinates
+		newData.Coordinates = data.Coordinates
 	} else if id == "3" {
-		existingData.Rotations = data.Rotations
-	} else {
-		existingData = data
-	}
-
-	writeErr := writeJSONToFile(existingData) // Write new data to JSON
-	if writeErr != nil {
-		c.JSON(400, gin.H{"error": writeErr.Error()})
-		return
-	}
-
-	dataJSON, err := json.Marshal(existingData) // Marshall existing data for clients to display
-	if err == nil {
-		for client := range clientList {
-			client <- string(dataJSON)
-		}
+		newData.Rotations = data.Rotations
 	}
 
 	destAddress := listIPs[2] // Ip for Space CNDH
 
-	newData := map[string]interface{}{ // Add on the necessary information (Its possible verb isn't needed here?)
+	moreData := map[string]interface{}{ // Add on the necessary information (Its possible verb isn't needed here?)
 		"verb": "PUT",
 		"uri":  "http://" + destAddress + ":8080/telemetry/?id=5",
 	}
 
 	combinedData := map[string]interface{}{ // Combine the new json data with the telemetry data
-		"verb": newData["verb"],
-		"uri":  newData["uri"],
-		"data": existingData,
+		"verb": moreData["verb"],
+		"uri":  moreData["uri"],
+		"data": newData,
 	}
 
-	sendAddress := listIPs[4] // Ip for Ground Uplink/Downlink
+	sendAddress := listIPs[5] // Ip for Ground Uplink/Downlink
 
 	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
 	if sendErr != nil {
 		c.JSON(400, gin.H{"error": sendErr.Error()})
-		return
+
 	} else {
-		c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"}) // Should be 200 if everything went properly within the sendTelemetry function (400 if timeout)
-		return
+		writeErr := writeJSONToFile(newData) // Write new json data to file if command went through
+		if writeErr != nil {
+			c.JSON(400, gin.H{"error": "Data was sent successfully but not saved locally"})
+			return
+		} else {
+			c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"}) // Should be 200 if everything went properly within the sendTelemetry function (400 if timeout)
+
+			dataJSON, err := json.Marshal(newData)
+			if err == nil {
+				for client := range clientList {
+					client <- string(dataJSON)
+				}
+			}
+		}
 	}
 }
 
@@ -331,6 +352,7 @@ func setupServer() *gin.Engine {
 	server.GET("/styles/:name", serveCSS)
 	server.PUT("/telemetry", putTelemetry)
 	server.GET("/telemetry", getTelemetry)
+	server.PUT("/settelemetry", setTelemetry)
 	server.GET("/status", status)
 	server.PUT("/receive", receive)
 	server.GET("/execute/:script", executeScript)
