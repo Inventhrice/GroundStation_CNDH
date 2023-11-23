@@ -8,6 +8,8 @@ var setTelemetryBtn = document.getElementById('setTelemetryBtn');
 var setCoordinateBtn = document.getElementById('setCoordinateBtn');
 var setAngleBtn = document.getElementById('setAngleBtn');
 
+var sendCommandBtn = document.getElementById('sendCommandButton');
+
 // Don't display the containers by default
 telemetryInputContainer.style.display = 'none';
 coordinateInputContainer.style.display = 'none';
@@ -69,4 +71,19 @@ update.onmessage = event => {
 
 window.addEventListener("beforeunload", function() {
     update.close();
+});
+
+
+// Event listener for requesting telemetry from Space CNDH
+sendCommandBtn.addEventListener('click', function() {
+    const request = new XMLHttpRequest();
+    const url = 'http://localhost:8080/setTelemetry'
+    request.open("POST", url);
+    request.send();
+    // Send alert if request is successful
+    request.onreadystatechange = function() {
+        if(this.readyState == 4 && this.status == 200) {
+            window.alert('Request for telemetry has been sent.');
+        }
+    }
 });

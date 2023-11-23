@@ -295,6 +295,20 @@ func setupServer() *gin.Engine {
 	return server
 }
 
+func setTelemetry(c *gin.Context) {
+	c.Header("content-type", "application/json")
+	uri := fmt.Sprintf("http://%s:8080/send/", listIPs[4])
+
+	// Create JSON
+	json := "{\"verb\":\"GET\",\"uri\":\"http://" + listIPs[2] + ":8080/send/\"}"
+	body := strings.NewReader(json)
+
+	res, err := http.NewRequest("POST", uri, body)
+	if err == nil {
+		defer res.Body.Close()
+	}
+}
+
 func main() {
 	go manageClientList()
 	temp, err := readIPCFG("ip.cfg")
