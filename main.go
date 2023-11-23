@@ -209,7 +209,7 @@ func putTelemetry(c *gin.Context) {
 	destAddress := listIPs[2] // Ip for Space CNDH
 
 	newData := map[string]interface{}{ // Add on the necessary information (Its possible verb isn't needed here?)
-		"verb": "POST",
+		"verb": "PUT",
 		"uri":  "http://" + destAddress + ":8080/telemetry/?id=5",
 	}
 
