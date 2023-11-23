@@ -223,7 +223,7 @@ func putTelemetry(c *gin.Context) {
 
 	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
 	if sendErr != nil {
-		c.JSON(respCode, gin.H{"error": sendErr.Error()})
+		c.JSON(400, gin.H{"error": sendErr.Error()})
 		return
 	} else {
 		c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"}) // Should be 200 if everything went properly within the sendTelemetry function (400 if timeout)
