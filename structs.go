@@ -20,8 +20,8 @@ type Status struct {
 }
 
 type TelemetryData struct {
-	Coordinates Coordinates `json:"coordinates"`
-	Rotations   Rotations   `json:"rotations"`
+	Coordinates Coordinates `json:"coordinate"`
+	Rotations   Rotations   `json:"rotation"`
 	Fuel        string      `json:"fuel"`
 	Temp        string      `json:"temp"`
 	Status      Status      `json:"status"`
