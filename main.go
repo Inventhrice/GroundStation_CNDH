@@ -147,12 +147,12 @@ func executeScript(c *gin.Context) {
 		if err != nil {
 			fmt.Fprintln(writeLog, "Failed to make request ", temp.URI, " ", temp.URI)
 		} else {
-			res, _ := http.DefaultClient.Do(req)
+			res, err := http.DefaultClient.Do(req)
 			if res != nil {
 				body, _ := io.ReadAll(res.Body)
 				fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", string(body))
 			} else {
-				fmt.Fprintln(writeLog, "Got a 500")
+				fmt.Fprintln(writeLog, "Got an error: ", err.Error())
 			}
 
 		}
