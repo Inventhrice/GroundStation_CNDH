@@ -109,9 +109,10 @@ func Test03_GetTelemetry_Valid(t *testing.T) {
 }
 
 func Test04_Scripts_Valid(t *testing.T) {
+	expected := "testTextfor js file"
 	req, _ := http.NewRequest("GET", "/scripts/test.js", nil)
 	w := httptest.NewRecorder()
-
+	server := SetupTestServer()
 	server.ServeHTTP(w, req)
 
 	assert.Equal(t, expected, w.Body.String())
