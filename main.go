@@ -189,8 +189,8 @@ func putTelemetry(c *gin.Context) {
 }
 
 func setTelemetry(c *gin.Context) {
-	id := c.Query("id")    // Extract the ID from the URL path
-	var data TelemetryData // Create an empty TelemetryData struct
+	id := c.Query("id") // Extract the ID from the URL path
+	var data ShipData   // Create an empty TelemetryData struct
 
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
@@ -204,7 +204,9 @@ func setTelemetry(c *gin.Context) {
 		return
 	}
 
-	newData := existingData
+	var newData ShipData
+	newData.Coordinates = existingData.Coordinates
+	newData.Rotations = existingData.Rotations
 
 	if id == "1" { // Only change the data that has been changed
 		newData.Coordinates = data.Coordinates
@@ -235,7 +237,9 @@ func setTelemetry(c *gin.Context) {
 		c.JSON(400, gin.H{"error": sendErr.Error()})
 
 	} else {
-		writeErr := writeJSONToFile(newData) // Write new json data to file if command went through
+		existingData.Coordinates = newData.Coordinates
+		existingData.Rotations = newData.Rotations
+		writeErr := writeJSONToFile(existingData) // Write new json data to file if command went through
 		if writeErr != nil {
 			c.JSON(400, gin.H{"error": "Data was sent successfully but not saved locally"})
 			return
