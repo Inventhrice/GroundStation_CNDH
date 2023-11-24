@@ -65,8 +65,8 @@ func receive(c *gin.Context) {
 	}
 
 	// Redirect to specific IPS:
-	//   1 - Payload Ops (Space)
-	//   2 - CNDH (Space)
+	//   1 - CNDH (Space)
+	//   2 - Payload Ops (Space)
 	//   3 - Uplink/Downlink (Space)
 	//   4 - Uplink/Downlink (Ground)
 	//   5 - CNDH (Ground) [US]
@@ -215,7 +215,7 @@ func setTelemetry(c *gin.Context) {
 		newData.Rotations = data.Rotations
 	}
 
-	destAddress := listIPs[2] // Ip for Space CNDH
+	destAddress := listIPs[1] // Ip for Space CNDH
 
 	moreData := map[string]interface{}{ // Add on the necessary information (Its possible verb isn't needed here?)
 		"verb": "PUT",
