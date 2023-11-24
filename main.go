@@ -136,6 +136,7 @@ func executeScript(c *gin.Context) {
 
 	for i := 0; i < len(allRequests); i++ {
 		temp := allRequests[i]
+
 		var req *http.Request
 		if temp.Data != "" {
 			req, err = http.NewRequest(temp.Verb, temp.URI, bytes.NewBufferString(temp.Data))
@@ -147,11 +148,16 @@ func executeScript(c *gin.Context) {
 		if err != nil {
 			fmt.Fprintln(writeLog, "Failed to make request ", temp.URI, " ", temp.URI)
 		} else {
+
 			res, err := http.DefaultClient.Do(req)
-			if err != nil {
-				defer res.Body.Close()
-				body, _ := io.ReadAll(res.Body)
-				fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", string(body))
+			if res != nil {
+				body, err := io.ReadAll(res.Body)
+				if err != nil {
+					fmt.Fprintln(writeLog, "Got an error: ", err.Error())
+				} else {
+					fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", string(body))
+				}
+
 			} else {
 				fmt.Fprintln(writeLog, "Got an error: ", err.Error())
 			}
