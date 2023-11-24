@@ -65,8 +65,8 @@ func receive(c *gin.Context) {
 	}
 
 	// Redirect to specific IPS:
-	//   1 - Payload Ops (Space)
-	//   2 - CNDH (Space)
+	//   1 - CNDH (Space)
+	//   2 - Payload Ops (Space)
 	//   3 - Uplink/Downlink (Space)
 	//   4 - Uplink/Downlink (Ground)
 	//   5 - CNDH (Ground) [US]
@@ -188,6 +188,70 @@ func putTelemetry(c *gin.Context) {
 	}
 }
 
+func setTelemetry(c *gin.Context) {
+	id := c.Query("id")    // Extract the ID from the URL path
+	var data TelemetryData // Create an empty TelemetryData struct
+
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Read existing data from the file
+	existingData, err := readJSONFromFile()
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	newData := existingData
+
+	if id == "1" { // Only change the data that has been changed
+		newData.Coordinates = data.Coordinates
+		newData.Rotations = data.Rotations
+	} else if id == "2" {
+		newData.Coordinates = data.Coordinates
+	} else if id == "3" {
+		newData.Rotations = data.Rotations
+	}
+
+	destAddress := listIPs[1] // Ip for Space CNDH
+
+	moreData := map[string]interface{}{ // Add on the necessary information (Its possible verb isn't needed here?)
+		"verb": "PUT",
+		"uri":  "http://" + destAddress + ":8080/telemetry/?id=5",
+	}
+
+	combinedData := map[string]interface{}{ // Combine the new json data with the telemetry data
+		"verb": moreData["verb"],
+		"uri":  moreData["uri"],
+		"data": newData,
+	}
+
+	sendAddress := listIPs[4] // Ip for Ground Uplink/Downlink
+
+	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
+	if sendErr != nil {
+		c.JSON(400, gin.H{"error": sendErr.Error()})
+
+	} else {
+		writeErr := writeJSONToFile(newData) // Write new json data to file if command went through
+		if writeErr != nil {
+			c.JSON(400, gin.H{"error": "Data was sent successfully but not saved locally"})
+			return
+		} else {
+			c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"}) // Should be 200 if everything went properly within the sendTelemetry function (400 if timeout)
+
+			dataJSON, err := json.Marshal(newData)
+			if err == nil {
+				for client := range clientList {
+					client <- string(dataJSON)
+				}
+			}
+		}
+	}
+}
+
 func getTelemetry(c *gin.Context) {
 	//	id := c.Query("id")
 
@@ -262,7 +326,7 @@ func requestTelemetry(c *gin.Context) {
 }
 
 func status(c *gin.Context) {
-	uri := fmt.Sprintf("http://%s:8080/status", listIPs[4])
+	uri := fmt.Sprintf("http://%s:8080/status/", listIPs[4])
 
 	// Error handling not implemented on purpose because
 	// "An error is returned if there were too many redirects or if there was an HTTP protocol error.
@@ -277,7 +341,6 @@ func status(c *gin.Context) {
 
 	//returns the status code and the body in a raw format
 	c.JSON(res.StatusCode, body)
-
 }
 
 func readIPCFG(path string) (map[int]string, error) {
@@ -303,6 +366,7 @@ func setupServer() *gin.Engine {
 	server.GET("/styles/:name", serveCSS)
 	server.PUT("/telemetry", putTelemetry)
 	server.GET("/telemetry", getTelemetry)
+	server.PUT("/settelemetry", setTelemetry)
 	server.GET("/status", status)
 	server.PUT("/receive", receive)
 	server.GET("/execute/:script", executeScript)

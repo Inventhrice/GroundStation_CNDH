@@ -83,12 +83,12 @@ button:hover
     margin-right: 0.5rem;
 }
 
-.coordinate-input-container button#sendCommandBtn 
+.coordinate-input-container button#sendCommandBtn2 
 {
     margin-top: 1rem; 
 }
 
-.angle-input-container button#sendCommandBtn 
+.angle-input-container button#sendCommandBtn3
 {
     margin-top: 1rem; 
 }
