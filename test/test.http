@@ -2,8 +2,8 @@ PUT http://localhost:8080/telemetry
 content-type:application/json
 
 {
-    "coordinates": { "x": "8", "y": "9", "z": "10" }, 
-    "rotations": { "p": "1", "y": "2", "r": "3" },
+    "coordinate": { "x": "8", "y": "9", "z": "10" }, 
+    "rotation": { "p": "1", "y": "2", "r": "3" },
     "fuel": "100",
     "temp": "50",
     "status": {"payloadPower": "ON", "dataWaiting": "False", "chargeStatus": "False", "voltage": "12.5"}
