@@ -3,5 +3,5 @@ http://[5]:8080/styles/styles.css
 STOP
 PUT
 http://[5]:8080/telemetry
-{"coordinates":{"x":"8", "y":"9", "z":"10"}, "rotations":{"p":"1", "y":"2", "r":"3"}, "fuel":"100", "temp":"50", "status":{"payloadPower":"ON", "dataWaiting":"False", "chargeStatus":"False", "voltage":"12.5"}}
+{"coordinate":{"x":"8", "y":"9", "z":"10"}, "rotation":{"p":"1", "y":"2", "r":"3"}, "fuel":"100", "temp":"50", "status":{"payloadPower":"ON", "dataWaiting":"False", "chargeStatus":"False", "voltage":"12.5"}}
 STOP
