@@ -175,10 +175,20 @@ func getRoot(c *gin.Context) { // Root route reads from json file and puts the d
 func putTelemetry(c *gin.Context) {
 	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
+	body, err := io.ReadAll(c.Request.Body)
+	jsonParser := json.NewDecoder(bytes.NewBuffer(body))
 	// Attempt to parse the incoming request's JSON into the "data" struct
-	if err := c.ShouldBindJSON(&data); err != nil {
+	if err := jsonParser.Decode(&data); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
+		/* if err == nil {
+			body = body[1 : len(body)-2]
+			err = jsonParser.Decode(&data)
+
+		}
+		if err != nil {
+
+		} */
 	}
 	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
