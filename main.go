@@ -175,6 +175,12 @@ func getRoot(c *gin.Context) { // Root route reads from json file and puts the d
 func putTelemetry(c *gin.Context) {
 	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
+
+	if c.Request.Body == nil {
+		c.JSON(500, gin.H{"error": "invalid request"})
+		return
+	}
+
 	body, err := io.ReadAll(c.Request.Body)
 	// Attempt to parse the incoming request's JSON into the "data" struct
 	if err != nil {
