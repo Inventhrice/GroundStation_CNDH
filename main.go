@@ -176,20 +176,23 @@ func putTelemetry(c *gin.Context) {
 	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
 	body, err := io.ReadAll(c.Request.Body)
-	jsonParser := json.NewDecoder(bytes.NewBuffer(body))
 	// Attempt to parse the incoming request's JSON into the "data" struct
-	if err := jsonParser.Decode(&data); err != nil {
+	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
-		/* if err == nil {
-			body = body[1 : len(body)-2]
-			err = jsonParser.Decode(&data)
-
-		}
-		if err != nil {
-
-		} */
 	}
+
+	err = json.NewDecoder(bytes.NewBuffer(body)).Decode(&data)
+	if err != nil {
+		body = body[1 : len(body)-1]
+		fmt.Println(string(body))
+		err = json.NewDecoder(bytes.NewBuffer(body)).Decode(&data)
+		if err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
 	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
 		c.JSON(400, gin.H{"error": writeErr.Error()})
