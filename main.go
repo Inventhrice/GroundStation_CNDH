@@ -196,16 +196,17 @@ func putTelemetry(c *gin.Context) {
 	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
 		c.JSON(400, gin.H{"error": writeErr.Error()})
-	} else {
-		c.JSON(200, gin.H{"message": "Data saved successfully!"})
+		return
 	}
 
+	c.JSON(200, gin.H{"message": "Data saved successfully!"})
 	dataJSON, err := json.Marshal(data)
 	if err == nil {
 		for client := range clientList {
 			client <- string(dataJSON)
 		}
 	}
+	return
 }
 
 func setTelemetry(c *gin.Context) {
