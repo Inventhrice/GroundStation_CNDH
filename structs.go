@@ -1,29 +1,29 @@
 package main
 
 type Coordinates struct {
-	X string `json:"x"`
-	Y string `json:"y"`
-	Z string `json:"z"`
+	X int `json:"x"`
+	Y int `json:"y"`
+	Z int `json:"z"`
 }
 
 type Rotations struct {
-	P string `json:"p"`
-	Y string `json:"y"`
-	R string `json:"r"`
+	P int `json:"p"`
+	Y int `json:"y"`
+	R int `json:"r"`
 }
 
 type Status struct {
-	PayloadPower string `json:"payloadPower"`
-	DataWaiting  string `json:"dataWaiting"`
-	ChargeStatus string `json:"chargeStatus"`
-	Voltage      string `json:"voltage"`
+	PayloadPower string  `json:"payloadPower"`
+	DataWaiting  bool    `json:"dataWaiting"`
+	ChargeStatus bool    `json:"chargeStatus"`
+	Voltage      float32 `json:"voltage"`
 }
 
 type TelemetryData struct {
 	Coordinates Coordinates `json:"coordinate"`
 	Rotations   Rotations   `json:"rotation"`
-	Fuel        string      `json:"fuel"`
-	Temp        string      `json:"temp"`
+	Fuel        int         `json:"fuel"`
+	Temp        float32     `json:"temp"`
 	Status      Status      `json:"status"`
 }
 

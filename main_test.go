@@ -30,10 +30,10 @@ func SetupTestServer() *gin.Engine {
 
 func Test01_PutTelemetry_ValidInput(t *testing.T) {
 	// Create input data
-	coords := Coordinates{X: "1", Y: "1", Z: "1"}
-	rot := Rotations{P: "1", Y: "1", R: "1"}
-	stat := Status{}
-	data := TelemetryData{Coordinates: coords, Rotations: rot, Status: stat}
+	coords := Coordinates{X: 1, Y: 1, Z: 1}
+	rot := Rotations{P: 1, Y: 1, R: 1}
+	stat := Status{PayloadPower: "", DataWaiting: true, ChargeStatus: true, Voltage: 12.5}
+	data := TelemetryData{Coordinates: coords, Rotations: rot, Status: stat, Fuel: 80, Temp: 80.4}
 	// Convert data into JSON encoded byte array
 	jsonData, err := json.Marshal(data)
 	if err != nil {
