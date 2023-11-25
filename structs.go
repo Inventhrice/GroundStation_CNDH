@@ -33,3 +33,8 @@ type RedirectRequest struct {
 	URI  string `json:"uri"`
 	Data string `json:"data"`
 }
+
+type ShipData struct {
+	Coordinates Coordinates `json:"coordinate"`
+	Rotations   Rotations   `json:"rotation"`
+}
