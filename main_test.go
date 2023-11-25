@@ -53,7 +53,7 @@ func Test01_PutTelemetry_ValidInput(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	expectedFilename := "test/test1.json"
+	expectedFilename := "FilesForTesting/Test1_Expected.json"
 	expectedJson, err := os.ReadFile(expectedFilename)
 	if err != nil {
 		t.Fatal(err)
@@ -86,7 +86,7 @@ func Test03_GetTelemetry_Valid(t *testing.T) {
 	server.ServeHTTP(w, req)
 	actual, _ := io.ReadAll(w.Body)
 
-	filename := "test/test3.tmpl"
+	filename := "FilesForTesting/Test3_Expected.tmpl"
 	//if err := os.WriteFile(filename, []byte(string(actual)), 0666); err != nil {
 	//    t.Fatal(err)
 	//}
