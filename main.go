@@ -136,6 +136,7 @@ func executeScript(c *gin.Context) {
 
 	for i := 0; i < len(allRequests); i++ {
 		temp := allRequests[i]
+
 		var req *http.Request
 		if temp.Data != "" {
 			req, err = http.NewRequest(temp.Verb, temp.URI, bytes.NewBufferString(temp.Data))
@@ -147,12 +148,18 @@ func executeScript(c *gin.Context) {
 		if err != nil {
 			fmt.Fprintln(writeLog, "Failed to make request ", temp.URI, " ", temp.URI)
 		} else {
-			res, _ := http.DefaultClient.Do(req)
+
+			res, err := http.DefaultClient.Do(req)
 			if res != nil {
-				body, _ := io.ReadAll(res.Body)
-				fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", string(body))
+				body, err := io.ReadAll(res.Body)
+				if err != nil {
+					fmt.Fprintln(writeLog, "Got an error: ", err.Error())
+				} else {
+					fmt.Fprintln(writeLog, "Status ", res.StatusCode, ": ", res.Status, "\nMessage: ", string(body))
+				}
+
 			} else {
-				fmt.Fprintln(writeLog, "Got a 500")
+				fmt.Fprintln(writeLog, "Got an error: ", err.Error())
 			}
 
 		}
@@ -168,24 +175,44 @@ func getRoot(c *gin.Context) { // Root route reads from json file and puts the d
 func putTelemetry(c *gin.Context) {
 	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
+
+	if c.Request.Body == nil {
+		c.JSON(500, gin.H{"error": "invalid request"})
+		return
+	}
+
+	body, err := io.ReadAll(c.Request.Body)
 	// Attempt to parse the incoming request's JSON into the "data" struct
-	if err := c.ShouldBindJSON(&data); err != nil {
+	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+
+	err = json.NewDecoder(bytes.NewBuffer(body)).Decode(&data)
+	if err != nil {
+		body = body[1 : len(body)-1]
+		fmt.Println(string(body))
+		err = json.NewDecoder(bytes.NewBuffer(body)).Decode(&data)
+		if err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
 	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
 		c.JSON(400, gin.H{"error": writeErr.Error()})
-	} else {
-		c.JSON(200, gin.H{"message": "Data saved successfully!"})
+		return
 	}
 
+	c.JSON(200, gin.H{"message": "Data saved successfully!"})
 	dataJSON, err := json.Marshal(data)
 	if err == nil {
 		for client := range clientList {
 			client <- string(dataJSON)
 		}
 	}
+	return
 }
 
 func setTelemetry(c *gin.Context) {

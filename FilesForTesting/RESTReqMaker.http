@@ -2,12 +2,24 @@ PUT http://localhost:8080/telemetry
 content-type:application/json
 
 {
-    "coordinate": { "x": "8", "y": "9", "z": "10" }, 
-    "rotation": { "p": "1", "y": "2", "r": "3" },
-    "fuel": "100",
-    "temp": "50",
-    "status": {"payloadPower": "ON", "dataWaiting": "False", "chargeStatus": "False", "voltage": "12.5"}
+    "coordinate": { "x": 9, "y": 9, "z": 10 }, 
+    "rotation": { "p": 1, "y": 2, "r": 3 },
+    "fuel": 100,
+    "temp": 50,
+    "status": {"payloadPower": "ON", "dataWaiting": false, "chargeStatus": false, "voltage": 12.5}
 }
+
+###
+PUT http://localhost:8080/telemetry
+content-type:application/json
+
+"{
+    "coordinate": { "x": 9, "y": 9, "z": 10 }, 
+    "rotation": { "p": 1, "y": 2, "r": 3 },
+    "fuel": 100,
+    "temp": 50,
+    "status": {"payloadPower": "ON", "dataWaiting": false, "chargeStatus": false, "voltage": 12.5}
+}"
 
 ###
 
