@@ -260,8 +260,9 @@ func setTelemetry(c *gin.Context) {
 	sendAddress := listIPs[4] // Ip for Ground Uplink/Downlink
 
 	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
+
 	if sendErr != nil {
-		c.JSON(400, gin.H{"error": sendErr.Error()})
+		c.JSON(408, gin.H{"error": sendErr.Error()}) // Timeout
 
 	} else {
 		existingData.Coordinates = newData.Coordinates
