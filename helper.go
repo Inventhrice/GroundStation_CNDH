@@ -156,7 +156,9 @@ func sendTelemetry(c *gin.Context, combinedData map[string]interface{}, ipAddres
 	}
 
 	// Send a PUT request to the specified IP address
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
 	url := "http://" + ipAddress + ":8080/send/" // Update the URL endpoint accordingly
 
 	req, dataErr := http.NewRequest("POST", url, bytes.NewBuffer(dataJSON)) // Create the request

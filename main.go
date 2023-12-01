@@ -274,7 +274,7 @@ func setTelemetry(c *gin.Context) {
 		} else {
 			c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"}) // Should be 200 if everything went properly within the sendTelemetry function (400 if timeout)
 
-			dataJSON, err := json.Marshal(newData)
+			dataJSON, err := json.Marshal(existingData)
 			if err == nil {
 				for client := range clientList {
 					client <- string(dataJSON)

@@ -105,12 +105,12 @@ sendCommandBtn.addEventListener('click', function() {
 
     // Create an object with the form data
     var formData = {
-        coordinates: {
+        coordinate: {
             x: Number(x),
             y: Number(y),
             z: Number(z)
         },
-        rotations: {
+        rotation: {
             p: Number(pitch),
             y: Number(yaw),
             r: Number(roll)
@@ -143,7 +143,7 @@ sendCommandBtn2.addEventListener('click', function() {
 
     // Create an object with the form data
     var formData = {
-        coordinates: {
+        coordinate: {
             x: Number(x),
             y: Number(y),
             z: Number(z)
@@ -176,7 +176,7 @@ sendCommandBtn3.addEventListener('click', function() {
 
     // Create an object with the form data
     var formData = {
-        rotations: {
+        rotation: {
             p: Number(pitch),
             y: Number(yaw),
             r: Number(roll)
