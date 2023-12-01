@@ -81,7 +81,7 @@ func receive(c *gin.Context) {
 		// uri := listIPs[4] + "/send?ID=" + stringID
 
 		// Create the URI
-		uri := listIPs[4] + "/send"
+		uri := listIPs[4] + "/send/"
 
 		// Recreate the request data
 		data, err := json.Marshal(req)
