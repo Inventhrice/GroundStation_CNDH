@@ -212,7 +212,6 @@ func putTelemetry(c *gin.Context) {
 			client <- string(dataJSON)
 		}
 	}
-	return
 }
 
 func setTelemetry(c *gin.Context) {

@@ -38,7 +38,6 @@ func sendRedirectRequest(c *gin.Context, verb string, uri string, data []byte) {
 
 	// Replies with status code of request
 	c.Status(resp.StatusCode)
-	return
 }
 
 func parseScript(scriptName string) (map[int]RedirectRequest, error) {
