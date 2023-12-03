@@ -197,3 +197,27 @@ func Test12_executeScript_InvalidScript(t *testing.T) {
 	assert.Equal(t, expectedCode, w.Code)
 
 }
+func Test13_executeScript_DataValid(t *testing.T) {
+	expectedCode := 200
+
+	listIPs = makeTestListIP()
+	server := SetupTestServer()
+	req, _ := http.NewRequest("GET", "/execute/test13Script", nil)
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+
+	expectedFilename := "FilesForTesting/Test13_Expected.json"
+	expectedJson, err := os.ReadFile(expectedFilename)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	actualFilename := "telemetry.json"
+	actualJson, err := os.ReadFile(actualFilename)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, expectedCode, w.Code)
+	assert.Equal(t, string(expectedJson), string(actualJson))
+}
