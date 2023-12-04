@@ -221,3 +221,25 @@ func Test13_executeScript_DataValid(t *testing.T) {
 	assert.Equal(t, expectedCode, w.Code)
 	assert.Equal(t, string(expectedJson), string(actualJson))
 }
+
+func Test14_TestUpdateClient(t *testing.T) {
+	/* listIPs = makeTestListIP()
+	server := SetupTestServer()
+
+	actual, _ := http.Get("/telemetry")
+
+	req, _ := http.NewRequest("GET", "/execute/test13Script", nil)
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+
+
+
+
+
+	assert.NotEqual(t, actual.Body(), ) */
+
+}
+
+func Test15_RequestTelemetry(t *testing.T) {
+
+}
