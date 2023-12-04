@@ -260,8 +260,9 @@ func setTelemetry(c *gin.Context) {
 	sendAddress := listIPs[4] // Ip for Ground Uplink/Downlink
 
 	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
+
 	if sendErr != nil {
-		c.JSON(400, gin.H{"error": sendErr.Error()})
+		c.JSON(408, gin.H{"error": sendErr.Error()}) // Timeout
 
 	} else {
 		existingData.Coordinates = newData.Coordinates
@@ -273,7 +274,7 @@ func setTelemetry(c *gin.Context) {
 		} else {
 			c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"}) // Should be 200 if everything went properly within the sendTelemetry function (400 if timeout)
 
-			dataJSON, err := json.Marshal(newData)
+			dataJSON, err := json.Marshal(existingData)
 			if err == nil {
 				for client := range clientList {
 					client <- string(dataJSON)
