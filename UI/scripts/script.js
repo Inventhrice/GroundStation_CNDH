@@ -121,7 +121,7 @@ sendCommandBtn.addEventListener('click', function() {
     Number(pitch) < -180 || Number(pitch) > 360 || Number(yaw) < -180 || Number(yaw) > 360 || Number(roll) < -180 || Number(roll) > 360 ||
     X == "" || Y == "" || Z == "" || pitch == "" || yaw == "" || roll == "")
     {
-        window.alert('All input fields must be between -180 and 180.')
+        window.alert('All input fields must be between -180 and 360.')
     }
     else
     {
@@ -162,7 +162,7 @@ sendCommandBtn2.addEventListener('click', function() {
     if (Number(X) < -180 || Number(X) > 360 || Number(Y) < -180 || Number(Y) > 360 || Number(Z) < -180 || Number(Z) > 360 ||
     X == "" || Y == "" || Z == "")
     {
-        window.alert('All input fields must be between -180 and 180.')
+        window.alert('All input fields must be between -180 and 360.')
     }
     else
     {
@@ -203,7 +203,7 @@ sendCommandBtn3.addEventListener('click', function() {
     if (Number(pitch) < -180 || Number(pitch) > 360 || Number(yaw) < -180 || Number(yaw) > 360 
     || Number(roll) < -180 || Number(roll) > 360 || pitch == "" || yaw == "" || roll == "")
     {
-        window.alert('All input fields must be between -180 and 180.')
+        window.alert('All input fields must be between -180 and 360.')
     }
     else
     {
