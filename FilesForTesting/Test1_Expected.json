@@ -12,7 +12,7 @@
     "fuel": 80,
     "temp": 80.4,
     "status": {
-        "payloadPower": "",
+        "payloadPower": true,
         "dataWaiting": true,
         "chargeStatus": true,
         "voltage": 12.5

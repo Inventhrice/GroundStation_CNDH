@@ -14,6 +14,8 @@ var sendCommandBtn3 = document.getElementById('sendCommandBtn3');
 
 var getTelemetryBtn = document.getElementById('getTelemetryBtn');
 
+var script1Btn = document.getElementById('script1Btn');
+
 // Don't display the containers by default
 telemetryInputContainer.style.display = 'none';
 coordinateInputContainer.style.display = 'none';
@@ -238,3 +240,23 @@ function checkInvalidInput(...values)
     }
     return false;
 }
+
+// Event listener for Script1 button
+script1Btn.addEventListener('click', function() {
+    const request = new XMLHttpRequest();
+    const url = 'http://localhost:8080/execute/Script1'
+    request.open("GET", url);
+    request.send();
+     
+    // Send alert if request is successful
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                window.alert('Request was sent successfully.');
+            } else {
+                window.alert('Failed to send request. Status: ' + this.status);
+            }
+        }
+    };
+
+});

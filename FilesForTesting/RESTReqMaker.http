@@ -31,7 +31,7 @@ GET http://localhost:8080/styles/styles.css
 
 ###
 
-GET http://localhost:8080/execute/testScriptName
+GET http://localhost:8080/execute/Script1
 
 ####
 // bad test do not test
