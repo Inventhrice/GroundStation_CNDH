@@ -180,7 +180,7 @@ func Test11_executeScript_Valid(t *testing.T) {
 
 	listIPs = makeTestListIP()
 	server := SetupTestServer()
-	req, _ := http.NewRequest("GET", "/execute/testScriptName", nil)
+	req, _ := http.NewRequest("GET", "/execute/Script1", nil)
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 
