@@ -248,7 +248,7 @@ func setTelemetry(c *gin.Context) {
 
 	moreData := map[string]interface{}{ // Add on the necessary information (Its possible verb isn't needed here?)
 		"verb": "PUT",
-		"uri":  "http://" + destAddress + ":8080/telemetry/?id=5",
+		"uri":  "http://" + destAddress + ":8080/point?id=5", // POINT NOT TELELEMTRY
 	}
 
 	combinedData := map[string]interface{}{ // Combine the new json data with the telemetry data

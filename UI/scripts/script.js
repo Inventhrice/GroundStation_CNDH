@@ -95,9 +95,9 @@ window.addEventListener('beforeunload', function() {
 // Event listener for setting telemetry to Space CNDH
 sendCommandBtn.addEventListener('click', function() {
 
-    var x = document.getElementById('coordX').value;
-    var y = document.getElementById('coordY').value;
-    var z = document.getElementById('coordZ').value;
+    var X = document.getElementById('coordX').value;
+    var Y = document.getElementById('coordY').value;
+    var Z = document.getElementById('coordZ').value;
 
     var pitch = document.getElementById('anglePitch').value;
     var yaw = document.getElementById('angleYaw').value;
@@ -106,9 +106,9 @@ sendCommandBtn.addEventListener('click', function() {
     // Create an object with the form data
     var formData = {
         coordinate: {
-            x: Number(x),
-            y: Number(y),
-            z: Number(z)
+            x: Number(X),
+            y: Number(Y),
+            z: Number(Z)
         },
         rotation: {
             p: Number(pitch),
@@ -117,54 +117,70 @@ sendCommandBtn.addEventListener('click', function() {
         }
     };
 
-    const request = new XMLHttpRequest();
-    const url = 'http://localhost:8080/settelemetry?id=1'
-    request.open("PUT", url);
-    request.send(JSON.stringify(formData));
-
-     // Send alert if request is successful
-     request.onreadystatechange = function () {
-        if (this.readyState == 4) {
-            if (this.status == 200) {
-                window.alert('Request to set telemetry has been sent.');
-            } else {
-                window.alert('Failed to send telemetry request. Status: ' + this.status);
+    if (checkInvalidInput(X, Y, Z, pitch, yaw, roll))
+    {
+        window.alert('All input fields must be between -180 and 360.')
+    }
+    else
+    {
+        console.log('called');
+        const request = new XMLHttpRequest();
+        const url = 'http://localhost:8080/settelemetry?id=1'
+        request.open("PUT", url);
+        console.log('send')
+        request.send(JSON.stringify(formData));
+    
+         // Send alert if request is successful
+         request.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    window.alert('Request to set telemetry has been sent.');
+                } else {
+                    window.alert('Failed to send telemetry request. Status: ' + this.status);
+                }
             }
-        }
-    };
+        };
+    }
 });
 
 // Event listener for requesting coordinates to Space CNDH
 sendCommandBtn2.addEventListener('click', function() {
 
-    var x = document.getElementById('coordX2').value;
-    var y = document.getElementById('coordY2').value;
-    var z = document.getElementById('coordZ2').value;
+    var X = document.getElementById('coordX2').value;
+    var Y = document.getElementById('coordY2').value;
+    var Z = document.getElementById('coordZ2').value;
 
     // Create an object with the form data
     var formData = {
         coordinate: {
-            x: Number(x),
-            y: Number(y),
-            z: Number(z)
+            x: Number(X),
+            y: Number(Y),
+            z: Number(Z)
         },
     };
 
-    const request = new XMLHttpRequest();
-    const url = 'http://localhost:8080/settelemetry?id=2'
-    request.open("PUT", url);
-    request.send(JSON.stringify(formData));
-
-     // Send alert if request is successful
-     request.onreadystatechange = function () {
-        if (this.readyState == 4) {
-            if (this.status == 200) {
-                window.alert('Request to set co-ordinates has been sent.');
-            } else {
-                window.alert('Failed to send co-ordinate request. Status: ' + this.status);
+    if (checkInvalidInput(X, Y, Z))
+    {
+        window.alert('All input fields must be between -180 and 360.')
+    }
+    else
+    {
+        const request = new XMLHttpRequest();
+        const url = 'http://localhost:8080/settelemetry?id=2'
+        request.open("PUT", url);
+        request.send(JSON.stringify(formData));
+    
+         // Send alert if request is successful
+         request.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    window.alert('Request to set co-ordinates has been sent.');
+                } else {
+                    window.alert('Failed to send co-ordinate request. Status: ' + this.status);
+                }
             }
-        }
-    };
+        };
+    }
 });
 
 // Event listener for requesting rotation to Space CNDH
@@ -183,19 +199,42 @@ sendCommandBtn3.addEventListener('click', function() {
         }
     };
 
-    const request = new XMLHttpRequest();
-    const url = 'http://localhost:8080/settelemetry?id=3'
-    request.open("PUT", url);
-    request.send(JSON.stringify(formData));
+    if (checkInvalidInput(pitch, yaw, roll))
+    {
+        window.alert('All input fields must be between -180 and 360.')
+    }
+    else
+    {
+        const request = new XMLHttpRequest();
+        const url = 'http://localhost:8080/settelemetry?id=3'
+        request.open("PUT", url);
+        request.send(JSON.stringify(formData));
 
-     // Send alert if request is successful
-     request.onreadystatechange = function () {
-        if (this.readyState == 4) {
-            if (this.status == 200) {
-                window.alert('Request to set coordinates has been sent.');
-            } else {
-                window.alert('Failed to send rotation request. Status: ' + this.status);
+        // Send alert if request is successful
+        request.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    window.alert('Request to set coordinates has been sent.');
+                } else {
+                    window.alert('Failed to send rotation request. Status: ' + this.status);
+                }
             }
-        }
-    };
+        };
+    }
+
+    
 });
+
+function checkInvalidInput(...values)
+{
+
+    for (var i = 0; i < values.length; i++)
+    {
+        var numValue = Number(values[i]);
+        if (numValue < -180 || numValue > 360 || values[i] === "")
+        {
+            return true;
+        }
+    }
+    return false;
+}
