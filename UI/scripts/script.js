@@ -117,15 +117,17 @@ sendCommandBtn.addEventListener('click', function() {
         }
     };
 
-    if (checkValidInput(X, Y, Z, pitch, yaw, roll))
+    if (checkInvalidInput(X, Y, Z, pitch, yaw, roll))
     {
         window.alert('All input fields must be between -180 and 360.')
     }
     else
     {
+        console.log('called');
         const request = new XMLHttpRequest();
         const url = 'http://localhost:8080/settelemetry?id=1'
         request.open("PUT", url);
+        console.log('send')
         request.send(JSON.stringify(formData));
     
          // Send alert if request is successful
@@ -157,7 +159,7 @@ sendCommandBtn2.addEventListener('click', function() {
         },
     };
 
-    if (checkValidInput(X, Y, Z))
+    if (checkInvalidInput(X, Y, Z))
     {
         window.alert('All input fields must be between -180 and 360.')
     }
@@ -197,7 +199,7 @@ sendCommandBtn3.addEventListener('click', function() {
         }
     };
 
-    if (checkValidInput(pitch, yaw, roll))
+    if (checkInvalidInput(pitch, yaw, roll))
     {
         window.alert('All input fields must be between -180 and 360.')
     }
@@ -223,16 +225,16 @@ sendCommandBtn3.addEventListener('click', function() {
     
 });
 
-function checkValidInput(...values)
+function checkInvalidInput(...values)
 {
-    var inputInvalid = false;
+
     for (var i = 0; i < values.length; i++)
     {
         var numValue = Number(values[i]);
         if (numValue < -180 || numValue > 360 || values[i] === "")
         {
-            isValid = true;
+            return true;
         }
     }
-    return isValid;
+    return false;
 }
