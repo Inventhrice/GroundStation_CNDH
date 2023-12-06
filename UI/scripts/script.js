@@ -117,9 +117,7 @@ sendCommandBtn.addEventListener('click', function() {
         }
     };
 
-    if (Number(X) < -180 || Number(X) > 360 || Number(Y) < -180 || Number(Y) > 360 || Number(Z) < -180 || Number(Z) > 360 ||
-    Number(pitch) < -180 || Number(pitch) > 360 || Number(yaw) < -180 || Number(yaw) > 360 || Number(roll) < -180 || Number(roll) > 360 ||
-    X == "" || Y == "" || Z == "" || pitch == "" || yaw == "" || roll == "")
+    if (checkValidInput(X, Y, Z, pitch, yaw, roll))
     {
         window.alert('All input fields must be between -180 and 360.')
     }
@@ -159,8 +157,7 @@ sendCommandBtn2.addEventListener('click', function() {
         },
     };
 
-    if (Number(X) < -180 || Number(X) > 360 || Number(Y) < -180 || Number(Y) > 360 || Number(Z) < -180 || Number(Z) > 360 ||
-    X == "" || Y == "" || Z == "")
+    if (checkValidInput(X, Y, Z))
     {
         window.alert('All input fields must be between -180 and 360.')
     }
@@ -200,8 +197,7 @@ sendCommandBtn3.addEventListener('click', function() {
         }
     };
 
-    if (Number(pitch) < -180 || Number(pitch) > 360 || Number(yaw) < -180 || Number(yaw) > 360 
-    || Number(roll) < -180 || Number(roll) > 360 || pitch == "" || yaw == "" || roll == "")
+    if (checkValidInput(pitch, yaw, roll))
     {
         window.alert('All input fields must be between -180 and 360.')
     }
@@ -226,3 +222,17 @@ sendCommandBtn3.addEventListener('click', function() {
 
     
 });
+
+function checkValidInput(...values)
+{
+    var inputInvalid = false;
+    for (var i = 0; i < values.length; i++)
+    {
+        var numValue = Number(values[i]);
+        if (numValue < -180 || numValue > 360 || values[i] === "")
+        {
+            isValid = true;
+        }
+    }
+    return isValid;
+}
