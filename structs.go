@@ -13,7 +13,7 @@ type Rotations struct {
 }
 
 type Status struct {
-	PayloadPower string  `json:"payloadPower"`
+	PayloadPower bool    `json:"payloadPower"`
 	DataWaiting  bool    `json:"dataWaiting"`
 	ChargeStatus bool    `json:"chargeStatus"`
 	Voltage      float32 `json:"voltage"`
