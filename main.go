@@ -81,7 +81,7 @@ func receive(c *gin.Context) {
 		// uri := listIPs[4] + "/send?ID=" + stringID
 
 		// Create the URI
-		uri := listIPs[4] + "/send"
+		uri := listIPs[4] + "/send/"
 
 		// Recreate the request data
 		data, err := json.Marshal(req)
@@ -248,7 +248,7 @@ func setTelemetry(c *gin.Context) {
 
 	moreData := map[string]interface{}{ // Add on the necessary information (Its possible verb isn't needed here?)
 		"verb": "PUT",
-		"uri":  "http://" + destAddress + ":8080/telemetry/?id=5",
+		"uri":  "http://" + destAddress + ":8080/point?id=5", // POINT NOT TELELEMTRY
 	}
 
 	combinedData := map[string]interface{}{ // Combine the new json data with the telemetry data
@@ -260,8 +260,9 @@ func setTelemetry(c *gin.Context) {
 	sendAddress := listIPs[4] // Ip for Ground Uplink/Downlink
 
 	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
+
 	if sendErr != nil {
-		c.JSON(400, gin.H{"error": sendErr.Error()})
+		c.JSON(408, gin.H{"error": sendErr.Error()}) // Timeout
 
 	} else {
 		existingData.Coordinates = newData.Coordinates
@@ -273,7 +274,7 @@ func setTelemetry(c *gin.Context) {
 		} else {
 			c.JSON(respCode, gin.H{"message": "Successfully saved data and sent command"}) // Should be 200 if everything went properly within the sendTelemetry function (400 if timeout)
 
-			dataJSON, err := json.Marshal(newData)
+			dataJSON, err := json.Marshal(existingData)
 			if err == nil {
 				for client := range clientList {
 					client <- string(dataJSON)

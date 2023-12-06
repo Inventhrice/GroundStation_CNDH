@@ -1,15 +1,15 @@
 package main
 
 type Coordinates struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-	Z int `json:"z"`
+	X float32 `json:"x"`
+	Y float32 `json:"y"`
+	Z float32 `json:"z"`
 }
 
 type Rotations struct {
-	P int `json:"p"`
-	Y int `json:"y"`
-	R int `json:"r"`
+	P float32 `json:"p"`
+	Y float32 `json:"y"`
+	R float32 `json:"r"`
 }
 
 type Status struct {
