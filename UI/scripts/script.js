@@ -125,23 +125,13 @@ sendCommandBtn.addEventListener('click', function() {
     }
     else
     {
-        console.log('called');
-        const request = new XMLHttpRequest();
-        const url = 'http://localhost:8080/settelemetry?id=1'
-        request.open("PUT", url);
-        console.log('send')
-        request.send(JSON.stringify(formData));
-    
-         // Send alert if request is successful
-         request.onreadystatechange = function () {
-            if (this.readyState == 4) {
-                if (this.status == 200) {
-                    window.alert('Request to set telemetry has been sent.');
-                } else {
-                    window.alert('Failed to send telemetry request. Status: ' + this.status);
-                }
+        statusIsGood(function (isGood) {
+            if (isGood) {
+                sendRequest(formData, 1);
+            } else {
+                window.alert('Status of the link was not open');
             }
-        };
+        });
     }
 });
 
@@ -167,21 +157,13 @@ sendCommandBtn2.addEventListener('click', function() {
     }
     else
     {
-        const request = new XMLHttpRequest();
-        const url = 'http://localhost:8080/settelemetry?id=2'
-        request.open("PUT", url);
-        request.send(JSON.stringify(formData));
-    
-         // Send alert if request is successful
-         request.onreadystatechange = function () {
-            if (this.readyState == 4) {
-                if (this.status == 200) {
-                    window.alert('Request to set co-ordinates has been sent.');
-                } else {
-                    window.alert('Failed to send co-ordinate request. Status: ' + this.status);
-                }
+        statusIsGood(function (isGood) {
+            if (isGood) {
+                sendRequest(formData, 2);
+            } else {
+                window.alert('Status of the link was not open');
             }
-        };
+        });
     }
 });
 
@@ -207,21 +189,13 @@ sendCommandBtn3.addEventListener('click', function() {
     }
     else
     {
-        const request = new XMLHttpRequest();
-        const url = 'http://localhost:8080/settelemetry?id=3'
-        request.open("PUT", url);
-        request.send(JSON.stringify(formData));
-
-        // Send alert if request is successful
-        request.onreadystatechange = function () {
-            if (this.readyState == 4) {
-                if (this.status == 200) {
-                    window.alert('Request to set coordinates has been sent.');
-                } else {
-                    window.alert('Failed to send rotation request. Status: ' + this.status);
-                }
+        statusIsGood(function (isGood) {
+            if (isGood) {
+                sendRequest(formData, 3);
+            } else {
+                window.alert('Status of the link was not open');
             }
-        };
+        });
     }
 
     
@@ -239,6 +213,47 @@ function checkInvalidInput(...values)
         }
     }
     return false;
+}
+
+function sendRequest(formData, id)
+{
+    console.log('called');
+    const request = new XMLHttpRequest();
+    const url = 'http://localhost:8080/settelemetry?id=' + id;
+    request.open("PUT", url);
+    console.log('send')
+    request.send(JSON.stringify(formData));
+    
+    // Send alert if request is successful
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                window.alert('Request to set telemetry has been sent.');
+            } else {
+                window.alert('Failed to send telemetry request. Status: ' + this.status);
+            }
+        }
+    };
+}
+
+function statusIsGood(callback)
+{
+    const request = new XMLHttpRequest();
+    const url = 'http://localhost:8080/status'
+    request.open("GET", url);
+    request.send();
+
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                console.log(this.status)
+                callback(true);
+            } else {
+                console.log(this.status)
+                callback(false);
+            }
+        } 
+    }
 }
 
 // Event listener for Script1 button
