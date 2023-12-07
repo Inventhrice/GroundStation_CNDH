@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -20,6 +21,8 @@ var (
 	newClient    = make(chan chan string)
 	closedClient = make(chan chan string)
 )
+
+var serverLogger *log.Logger
 
 /*
 Example request.
@@ -390,6 +393,17 @@ func readIPCFG(path string) (map[int]string, error) {
 	return ips, err
 }
 
+func initLogger() {
+	// Create log file
+	serverLogFile, err := os.Create("server.log")
+	if err != nil {
+		log.Fatal("Error creating request log file: ", err)
+	}
+
+	// Initialize global loggers
+	serverLogger = log.New(serverLogFile, "", log.LstdFlags)
+}
+
 func setupServer() *gin.Engine {
 	server := gin.Default()
 	server.LoadHTMLFiles("UI/index.tmpl")
@@ -409,6 +423,7 @@ func setupServer() *gin.Engine {
 
 func main() {
 	go manageClientList()
+	initLogger()
 	temp, err := readIPCFG("ip.cfg")
 	if err == nil {
 		listIPs = temp
