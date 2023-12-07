@@ -1,3 +1,0 @@
-2023/12/07 19:15:33 getTelemetry route called by: 172.17.0.1
-2023/12/07 19:15:51 putTelemetry route called by: 172.17.0.1
-2023/12/07 19:15:51 Error decoding data in putTelemetry: json: cannot unmarshal string into Go value of type main.TelemetryData
