@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -12,6 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
+
+var mockLogger *log.Logger
 
 func makeTestListIP() map[int]string {
 	temp := make(map[int]string)
@@ -25,6 +28,8 @@ func SetupTestServer() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	server := setupServer()
 	go manageClientList()
+	mockLogger = log.New(os.Stdout, "", log.LstdFlags)
+	serverLogger = mockLogger
 	return server
 }
 
