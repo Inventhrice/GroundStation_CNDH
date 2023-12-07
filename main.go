@@ -34,9 +34,11 @@ curl --header "Content-Type: application/json" \
 */
 
 func receive(c *gin.Context) {
+	serverLogger.Println("receive route called by:", c.ClientIP())
 	// Attempt to parse the incoming request's JSON into the "data" struct
 	var req RedirectRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		serverLogger.Println("Error binidng JSON data in receive:", err)
 		// Abort internally stops Gin from contiuing to handle the request
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -59,6 +61,7 @@ func receive(c *gin.Context) {
 	//}
 	sourceID, err := strconv.Atoi(stringID)
 	if err != nil {
+		serverLogger.Println("Error converting sourceID to int:", err)
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -89,6 +92,7 @@ func receive(c *gin.Context) {
 		// Recreate the request data
 		data, err := json.Marshal(req)
 		if err != nil {
+			serverLogger.Println("Error marshalling JSON data in receive:", err)
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
@@ -103,6 +107,7 @@ func receive(c *gin.Context) {
 		// Recreate the request data
 		data, err := json.Marshal(req)
 		if err != nil {
+			serverLogger.Println("Error marshalling JSON data in receive:", err)
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
@@ -119,6 +124,7 @@ func receive(c *gin.Context) {
 }
 
 func executeScript(c *gin.Context) {
+	serverLogger.Println("executeScript route called by:", c.ClientIP())
 
 	scriptName := c.Param("script")
 
@@ -172,10 +178,12 @@ func executeScript(c *gin.Context) {
 }
 
 func getRoot(c *gin.Context) { // Root route reads from json file and puts the data into the html (tmpl) file for display
+	serverLogger.Println("root route called by:", c.ClientIP())
 	c.JSON(200, gin.H{"message": "Server is running"})
 }
 
 func putTelemetry(c *gin.Context) {
+	serverLogger.Println("putTelemetry route called by:", c.ClientIP())
 	//	id := c.Query("id")    // Extract the ID from the URL path (Not currently used)
 	var data TelemetryData // Create an empty TelemetryData struct
 
@@ -187,6 +195,7 @@ func putTelemetry(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	// Attempt to parse the incoming request's JSON into the "data" struct
 	if err != nil {
+		serverLogger.Println("Error reading body in putTelemetry:", err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -197,6 +206,7 @@ func putTelemetry(c *gin.Context) {
 		fmt.Println(string(body))
 		err = json.NewDecoder(bytes.NewBuffer(body)).Decode(&data)
 		if err != nil {
+			serverLogger.Println("Error decoding data in putTelemetry:", err)
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
@@ -204,6 +214,7 @@ func putTelemetry(c *gin.Context) {
 
 	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
+		serverLogger.Println("Error writing JSON data to file:", writeErr)
 		c.JSON(400, gin.H{"error": writeErr.Error()})
 		return
 	}
@@ -219,10 +230,12 @@ func putTelemetry(c *gin.Context) {
 }
 
 func setTelemetry(c *gin.Context) {
+	serverLogger.Println("setTelemetry route called by:", c.ClientIP())
 	id := c.Query("id") // Extract the ID from the URL path
 	var data ShipData   // Create an empty TelemetryData struct
 
 	if err := c.ShouldBindJSON(&data); err != nil {
+		serverLogger.Println("Error binding JSON in setTelemetry:", err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -230,6 +243,7 @@ func setTelemetry(c *gin.Context) {
 	// Read existing data from the file
 	existingData, err := readJSONFromFile()
 	if err != nil {
+		serverLogger.Println("Error reading JSON data from file:", err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -265,6 +279,7 @@ func setTelemetry(c *gin.Context) {
 	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
 
 	if sendErr != nil {
+		serverLogger.Println("Error sending JSON to G Uplink/ Downling:", sendErr)
 		c.JSON(408, gin.H{"error": sendErr.Error()}) // Timeout
 
 	} else {
@@ -272,6 +287,7 @@ func setTelemetry(c *gin.Context) {
 		existingData.Rotations = newData.Rotations
 		writeErr := writeJSONToFile(existingData) // Write new json data to file if command went through
 		if writeErr != nil {
+			serverLogger.Println("Error writing JSON data to file:", writeErr)
 			c.JSON(400, gin.H{"error": "Data was sent successfully but not saved locally"})
 			return
 		} else {
@@ -288,10 +304,12 @@ func setTelemetry(c *gin.Context) {
 }
 
 func getTelemetry(c *gin.Context) {
+	serverLogger.Println("getTelemetry route called by:", c.ClientIP())
 	//	id := c.Query("id")
 
 	data, err := readJSONFromFile() // Load json data into data variable
 	if err != nil {
+		serverLogger.Println("Error reading JSON data from file:", err)
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -346,6 +364,8 @@ func serveCSS(c *gin.Context) {
 }
 
 func requestTelemetry(c *gin.Context) {
+	serverLogger.Println("requestTelemetry route called by:", c.ClientIP())
+
 	uri := fmt.Sprintf("http://%s:8080/send/", listIPs[4])
 
 	// Create JSON
@@ -354,6 +374,7 @@ func requestTelemetry(c *gin.Context) {
 
 	res, err := http.NewRequest("POST", uri, body)
 	if err != nil {
+		serverLogger.Println("Error creating requestTelemetry post request:", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 	defer res.Body.Close()
@@ -361,6 +382,8 @@ func requestTelemetry(c *gin.Context) {
 }
 
 func status(c *gin.Context) {
+	serverLogger.Println("status route called by:", c.ClientIP())
+
 	uri := fmt.Sprintf("http://%s:8080/status/", listIPs[4])
 
 	// Error handling not implemented on purpose because
@@ -430,6 +453,7 @@ func main() {
 		server := setupServer()
 		server.Run() // By default, it will start the server on http://localhost:8080
 	} else {
+		serverLogger.Println("Error opening ip.cfg:", err)
 		fmt.Println("Cannot read ip.cfg.")
 	}
 }
