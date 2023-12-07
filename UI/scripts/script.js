@@ -59,16 +59,27 @@ setAngleBtn.addEventListener('click', function() {
 
 // Event listener for requesting telemetry from Space CNDH
 getTelemetryBtn.addEventListener('click', function() {
-    const request = new XMLHttpRequest();
-    const url = 'http://localhost:8080/requestTelemetry'
-    request.open("GET", url);
-    request.send();
-    // Send alert if request is successful
-    request.onreadystatechange = function() {
-        if(this.readyState == 4 && this.status == 200) {
-            window.alert('Request for telemetry has been sent.');
+
+    statusIsGood(function (isGood) {
+        if (isGood) 
+        {
+            const request = new XMLHttpRequest();
+            const url = 'http://localhost:8080/requestTelemetry'
+            request.open("GET", url);
+            request.send();
+            // Send alert if request is successful
+            request.onreadystatechange = function() {
+                if(this.readyState == 4 && this.status == 200) {
+                    window.alert('Request for telemetry has been sent.');
+                }
+            }
         }
-    }
+        else 
+        {
+            window.alert('Status of the link was not open');
+        }
+    });
+    
 });
 
 var update = new EventSource('/update');
@@ -203,7 +214,6 @@ sendCommandBtn3.addEventListener('click', function() {
 
 function checkInvalidInput(...values)
 {
-
     for (var i = 0; i < values.length; i++)
     {
         var numValue = Number(values[i]);
@@ -258,20 +268,29 @@ function statusIsGood(callback)
 
 // Event listener for Script1 button
 script1Btn.addEventListener('click', function() {
-    const request = new XMLHttpRequest();
-    const url = 'http://localhost:8080/execute/Script1'
-    request.open("GET", url);
-    request.send();
-     
-    // Send alert if request is successful
-    request.onreadystatechange = function () {
-        if (this.readyState == 4) {
-            if (this.status == 200) {
-                window.alert('Request was sent successfully.');
-            } else {
-                window.alert('Failed to send request. Status: ' + this.status);
-            }
-        }
-    };
 
+    statusIsGood(function (isGood) {
+        if (isGood) 
+        {
+            const request = new XMLHttpRequest();
+            const url = 'http://localhost:8080/execute/Script1'
+            request.open("GET", url);
+            request.send();
+     
+            // Send alert if request is successful
+            request.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        window.alert('Request was sent successfully.');
+                    } else {
+                        window.alert('Failed to send request. Status: ' + this.status);
+                    }
+                }   
+            };
+        } 
+        else 
+        {
+            window.alert('Status of the link was not open');
+        }
+    });
 });
