@@ -228,6 +228,8 @@ func putTelemetry(c *gin.Context) {
 		return
 	}
 
+	serverLogger.Println("JSON data written to file:", TelemetryData(data))
+
 	c.JSON(200, gin.H{"message": "Data saved successfully!"})
 	dataJSON, err := json.Marshal(data)
 	if err == nil {
@@ -324,6 +326,8 @@ func getTelemetry(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+
+	serverLogger.Println("JSON data read from file:", TelemetryData(data))
 
 	c.HTML(http.StatusOK, "index.tmpl", gin.H{ // Write json data to html page
 		"coordsX":      data.Coordinates.X,
