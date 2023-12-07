@@ -44,6 +44,10 @@ func receive(c *gin.Context) {
 		return
 	}
 
+	// Log the JSON data if successfully binded
+	requestData, _ := json.Marshal(req)
+	serverLogger.Println("Received request JSON data:", string(requestData))
+
 	// Parse the IP from the RedirectRequest
 	req.URI = strings.Trim(req.URI, "http://")
 	parts := strings.Split(req.URI, "/")
@@ -96,6 +100,9 @@ func receive(c *gin.Context) {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
+
+		// Print out the data we intend to send to the log file
+		serverLogger.Println("Request JSON data that is being redirected:", string(data))
 
 		// Send the request
 		sendRedirectRequest(c, "POST", uri, data)
@@ -212,6 +219,8 @@ func putTelemetry(c *gin.Context) {
 		}
 	}
 
+	serverLogger.Println("Received JSON data:", TelemetryData(data))
+
 	writeErr := writeJSONToFile(data) // Write new data to JSON
 	if writeErr != nil {
 		serverLogger.Println("Error writing JSON data to file:", writeErr)
@@ -276,10 +285,12 @@ func setTelemetry(c *gin.Context) {
 
 	sendAddress := listIPs[4] // Ip for Ground Uplink/Downlink
 
+	serverLogger.Println("JSON data being sent:", map[string]interface{}(combinedData))
+
 	respCode, sendErr := sendTelemetry(c, combinedData, sendAddress) // Function to send the data away
 
 	if sendErr != nil {
-		serverLogger.Println("Error sending JSON to G Uplink/ Downling:", sendErr)
+		serverLogger.Println("Error sending JSON to G Uplink/ Downlink:", sendErr)
 		c.JSON(408, gin.H{"error": sendErr.Error()}) // Timeout
 
 	} else {
