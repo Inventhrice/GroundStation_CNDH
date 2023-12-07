@@ -6,7 +6,7 @@ content-type:application/json
     "rotation": { "p": 1, "y": 2, "r": 3 },
     "fuel": 100,
     "temp": 50,
-    "status": {"payloadPower": "ON", "dataWaiting": false, "chargeStatus": false, "voltage": 12.5}
+    "status": {"payloadPower": true, "dataWaiting": false, "chargeStatus": false, "voltage": 12.5}
 }
 
 ###
@@ -18,7 +18,7 @@ content-type:application/json
     "rotation": { "p": 1, "y": 2, "r": 3 },
     "fuel": 100,
     "temp": 50,
-    "status": {"payloadPower": "ON", "dataWaiting": false, "chargeStatus": false, "voltage": 12.5}
+    "status": {"payloadPower": true, "dataWaiting": false, "chargeStatus": false, "voltage": 12.5}
 }"
 
 ###
