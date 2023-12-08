@@ -453,7 +453,7 @@ func telemetryData(c *gin.Context) {
 		serverLogger.Println("Error converting telemetry to JSON:", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
-	c.JSON(http.StatusOK, jsonData)
+	c.JSON(http.StatusOK, string(jsonData))
 }
 
 func setupServer() *gin.Engine {
