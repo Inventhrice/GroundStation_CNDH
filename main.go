@@ -442,6 +442,20 @@ func initLogger() {
 	serverLogger = log.New(serverLogFile, "", log.LstdFlags)
 }
 
+func telemetryData(c *gin.Context) {
+	data, err := readJSONFromFile()
+	if err != nil {
+		serverLogger.Println("Error reading telemetry JSON:", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		serverLogger.Println("Error converting telemetry to JSON:", err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	c.JSON(http.StatusOK, jsonData)
+}
+
 func setupServer() *gin.Engine {
 	server := gin.Default()
 	server.LoadHTMLFiles("UI/index.tmpl")
@@ -456,6 +470,7 @@ func setupServer() *gin.Engine {
 	server.GET("/execute/:script", executeScript)
 	server.GET("/update", updateClient)
 	server.GET("/requestTelemetry", requestTelemetry)
+	server.GET("/telemetryData", telemetryData)
 	return server
 }
 
