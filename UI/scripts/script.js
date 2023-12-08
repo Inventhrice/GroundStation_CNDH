@@ -227,23 +227,32 @@ function checkInvalidInput(...values)
 
 function sendRequest(formData, id)
 {
-    console.log('called');
-    const request = new XMLHttpRequest();
-    const url = 'http://localhost:8080/settelemetry?id=' + id;
-    request.open("PUT", url);
-    console.log('send')
-    request.send(JSON.stringify(formData));
-    
-    // Send alert if request is successful
-    request.onreadystatechange = function () {
-        if (this.readyState == 4) {
-            if (this.status == 200) {
-                window.alert('Request to set telemetry has been sent.');
-            } else {
-                window.alert('Failed to send telemetry request. Status: ' + this.status);
-            }
+    statusIsGood(function (isGood) {
+        if (isGood) 
+        {
+            console.log('called');
+            const request = new XMLHttpRequest();
+            const url = 'http://localhost:8080/settelemetry?id=' + id;
+            request.open("PUT", url);
+            console.log('send')
+            request.send(JSON.stringify(formData));
+            
+            // Send alert if request is successful
+            request.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    if (this.status == 200) {
+                        window.alert('Request to set telemetry has been sent.');
+                    } else {
+                        window.alert('Failed to send telemetry request. Status: ' + this.status);
+                    }
+                }
+            };        
+        } 
+        else 
+        {
+            window.alert('Status of the link was not open');
         }
-    };
+    });
 }
 
 function statusIsGood(callback)
@@ -269,28 +278,19 @@ function statusIsGood(callback)
 // Event listener for Script1 button
 script1Btn.addEventListener('click', function() {
 
-    statusIsGood(function (isGood) {
-        if (isGood) 
-        {
-            const request = new XMLHttpRequest();
-            const url = 'http://localhost:8080/execute/Script1'
-            request.open("GET", url);
-            request.send();
-     
-            // Send alert if request is successful
-            request.onreadystatechange = function () {
-                if (this.readyState == 4) {
-                    if (this.status == 200) {
-                        window.alert('Request was sent successfully.');
-                    } else {
-                        window.alert('Failed to send request. Status: ' + this.status);
-                    }
-                }   
-            };
-        } 
-        else 
-        {
-            window.alert('Status of the link was not open');
-        }
-    });
+    const request = new XMLHttpRequest();
+    const url = 'http://localhost:8080/execute/Script1'
+    request.open("GET", url);
+    request.send();
+
+    // Send alert if request is successful
+    request.onreadystatechange = function () {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                window.alert('Request was sent successfully.');
+            } else {
+                window.alert('Failed to send request. Status: ' + this.status);
+            }
+        }   
+    };
 });
